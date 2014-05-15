@@ -1,4 +1,4 @@
-organization  := "com.example"
+organization  := "org.phenoscape"
 
 version       := "0.1"
 
