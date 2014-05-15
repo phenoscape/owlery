@@ -1,13 +1,15 @@
-package com.example
+package org.phenoscape.owlery
 
 import akka.actor.Actor
 import spray.routing._
 import spray.http._
-import MediaTypes._
+import spray.http.MediaTypes._
+import spray.httpx.marshalling.ToResponseMarshallable.isMarshallable
+import spray.routing.Directive.pimpApply
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
-class MyServiceActor extends Actor with MyService {
+class OwleryServiceActor extends Actor with OwleryService {
 
   // the HttpService trait defines only one abstract member, which
   // connects the services environment to the enclosing actor or test
@@ -19,9 +21,8 @@ class MyServiceActor extends Actor with MyService {
   def receive = runRoute(myRoute)
 }
 
-
 // this trait defines our service behavior independently from the service actor
-trait MyService extends HttpService {
+trait OwleryService extends HttpService {
 
   val myRoute =
     path("") {
