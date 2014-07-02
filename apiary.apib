@@ -1,0 +1,92 @@
+FORMAT: 1A
+HOST: http://www.google.com
+
+# Owlery
+Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based reasoner containing a configurable set of ontologies (a "knowledgebase").
+
+## Knowledgebase [/{kb}]
+### Display Knowledgebase information and status [GET]
+
++ Parameters
+    + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
++ Response 200 (text/plain)
+
+        Knowledgebase phenoscape is consistent
++ Response 400
+
+        No such knowledgebase: phenoscape
+        
+## Subclasses [/{kb}/subclasses{?object,prefixes,direct}]
+### Get subclasses of a named class or expression [GET]
+
++ Parameters
+    + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
+    + object (required, string, `http://purl.obolibrary.org/obo/UBERON_0002101`) ... URI for a named class in the KB
+    + prefixes (optional, string)
+    + direct = `true` (optional, boolean)
++ Response 200 (text/plain)
+
+## Superclasses [/{kb}/superclasses{?object,prefixes,direct}]
+### Get superclasses of a named class or expression [GET]
+
++ Parameters
+    + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
+    + object (required, string, `http://purl.obolibrary.org/obo/UBERON_0002101`) ... URI for a named class in the KB
+    + prefixes (optional, string)
+    + direct = `true` (optional, boolean)
++ Response 200 (text/plain)
+
+## Equivalent classes [/{kb}/equivalent{?object,prefixes}]
+### Get equivalent classes of a named class or expression [GET]
+
++ Parameters
+    + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
+    + object (required, string, `http://purl.obolibrary.org/obo/UBERON_0002101`) ... URI for a named class in the KB
+    + prefixes (optional, string)
++ Response 200 (text/plain)
+
+## Satisfiability [/{kb}/satisfiable{?object,prefixes}]
+### Returns whether the given named class or expression is satisfiable [GET]
+
++ Parameters
+    + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
+    + object (required, string, `http://purl.obolibrary.org/obo/UBERON_0002101`) ... URI for a named class in the KB
+    + prefixes (optional, string)
++ Response 200 (text/plain)
+
+        true
+        
+## Individuals [/{kb}/individuals{?object,prefixes,direct}]
+### Get individuals of a named class or expression [GET]
+
++ Parameters
+    + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
+    + object (required, string, `http://purl.obolibrary.org/obo/UBERON_0002101`) ... URI for a named class in the KB
+    + prefixes (optional, string)
+    + direct = `true` (optional, boolean)
++ Response 200 (text/plain)
+
+## Types [/{kb}/types{?object,prefixes,direct}]
+### Get types of a named individual [GET]
+
++ Parameters
+    + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
+    + object (required, string, `http://example.org/person/1234`) ... URI for a named individual in the KB
+    + prefixes (optional, string)
+    + direct = `true` (optional, boolean)
++ Response 200 (text/plain)
+
+## SPARQL endpoint [/{kb}/sparql{?query}]
+Perform SPARQL query using Owlet-style embedded class expressions
+### Perform SPARQL query encoded in URL parameter [GET]
+
++ Parameters
+    + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
+    + query (required, string) ... SPARQL query
++ Response 200 (application/sparql-results+xml)
+
+### Perform SPARQL query contained in request body [POST]
+
++ Parameters
+    + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
++ Response 200 (application/sparql-results+xml)
