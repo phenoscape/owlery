@@ -17,7 +17,7 @@ owlery {
 		{
 			name = phenoscape
 			location = "/Users/jim/Desktop/owlery/phenoscape"
-			reasoner = structural
+			reasoner = elk
 		},
 		{
 			name = tto

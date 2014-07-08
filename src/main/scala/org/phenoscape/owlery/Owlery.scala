@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigObject
 import com.typesafe.config.Config
+import org.semanticweb.elk.owlapi.ElkReasonerFactory
 
 object Owlery {
 
@@ -61,7 +62,7 @@ object Owlery {
     else loadOntologyFromFolder(config.location)
     val reasoner = config.reasoner match {
       case "structural" => new StructuralReasonerFactory().createReasoner(ontology)
-      case "elk" => ???
+      case "elk" => new ElkReasonerFactory().createReasoner(ontology)
       case "hermit" => ???
       case _ => new StructuralReasonerFactory().createReasoner(ontology)
     }

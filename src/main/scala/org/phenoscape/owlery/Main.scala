@@ -79,9 +79,17 @@ object Main extends App with SimpleRoutingApp {
               }
           } ~
             path("sparql") {
-              complete {
-                kbName + " owlet SPARQL endpoint"
+              get {
+                complete {
+                  kbName + " owlet SPARQL endpoint: GET"
+                }
+              } ~
+              post {
+                complete {
+                  kbName + " owlet SPARQL endpoint: POST"
+                }
               }
+
             } ~
             pathEnd {
               complete {

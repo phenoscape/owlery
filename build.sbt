@@ -8,6 +8,8 @@ scalaVersion  := "2.10.3"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
+resolvers += "Phenoscape Maven repository" at "http://phenoscape.svn.sourceforge.net/svnroot/phenoscape/trunk/maven/repository"
+
 libraryDependencies ++= {
   val akkaV = "2.3.0"
   val sprayV = "1.3.1"
@@ -19,7 +21,10 @@ libraryDependencies ++= {
     "com.typesafe.akka"      %%  "akka-testkit"        % akkaV   % "test",
     "org.specs2"             %%  "specs2-core"         % "2.3.7" % "test",
     "net.sourceforge.owlapi" %   "owlapi-distribution" % "3.5.0",
-    "commons-io"             %   "commons-io"          % "2.4"
+    "org.semanticweb.elk"    %   "elk-owlapi"          % "0.4.1",
+    "org.phenoscape"         %   "owlet"               % "1.0",
+    "commons-io"             %   "commons-io"          % "2.4",
+    "org.apache.jena"        %   "apache-jena-libs"    % "2.10.1"
   )
 }
 
