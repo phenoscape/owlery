@@ -1,18 +1,20 @@
 package org.phenoscape.owlery
 
+import scala.collection.JavaConversions._
+import scala.util.Right
+
+import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.IRI
+
 import akka.actor.ActorSystem
 import spray.httpx.marshalling.ToResponseMarshallable.isMarshallable
-import spray.httpx.unmarshalling.Deserializer
 import spray.httpx.unmarshalling.Deserialized
+import spray.httpx.unmarshalling.Deserializer
+import spray.httpx.unmarshalling.MalformedContent
 import spray.routing.Directive.pimpApply
 import spray.routing.SimpleRoutingApp
-import spray.routing.directives.ParamDefMagnet.apply
-import scala.util.Right
 import spray.routing.ValidationRejection
-import spray.httpx.unmarshalling.MalformedContent
-import org.semanticweb.owlapi.apibinding.OWLManager
-import scala.collection.JavaConversions._
+import spray.routing.directives.ParamDefMagnet.apply
 
 object Main extends App with SimpleRoutingApp {
 
@@ -35,13 +37,15 @@ object Main extends App with SimpleRoutingApp {
 
   }
 
+  def initializeReasoners() = Owlery.kbs.values.foreach(_.reasoner.isConsistent)
+
+  initializeReasoners()
+
   startServer(interface = "localhost", port = 8080) {
 
     pathPrefix("kb" / Segment) { kbName =>
       Owlery.kb(kbName) match {
-        case None => reject {
-          ValidationRejection(s"No such knowledgebase: $kbName")
-        }
+        case None => reject
         case Some(kb) => {
           parameters('object.as[IRI], 'prefixes.?, 'direct ? true) { (owlObject, prefixes, direct) =>
             path("subclasses") {

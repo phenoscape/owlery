@@ -1,0 +1,28 @@
+akka {
+  loglevel = INFO
+}
+
+spray.can.server {
+  request-timeout = 1s
+}
+
+owlery {
+	kbs = [
+		{
+			name = uberon
+			location = "http://purl.obolibrary.org/obo/uberon/ext.owl"
+			reasoner = structural
+
+		},
+		{
+			name = phenoscape
+			location = "/Users/jim/Desktop/owlery/phenoscape"
+			reasoner = structural
+		},
+		{
+			name = tto
+			location = "/Users/jim/Desktop/owlery/tto"
+			reasoner = structural
+		}
+	]
+}

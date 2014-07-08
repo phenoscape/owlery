@@ -14,24 +14,17 @@ import org.semanticweb.owlapi.model.OWLOntology
 import org.semanticweb.owlapi.model.AddImport
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
 import org.apache.commons.io.FileUtils
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigObject
+import com.typesafe.config.Config
 
 object Owlery {
 
-  val kbs = demoKBs()
+  val kbs = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").map(configToKBConfig).toSet)
   private[this] val factory = OWLManager.getOWLDataFactory
   private[this] val loaderConfig = new OWLOntologyLoaderConfiguration().setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT)
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
-
-  private[this] def demoKBs(): Map[String, Knowledgebase] = {
-    val uberon = OWLManager.createOWLOntologyManager().loadOntology(IRI.create("http://purl.obolibrary.org/obo/uberon/ext.owl"))
-    val uberonReasoner = new StructuralReasonerFactory().createReasoner(uberon)
-    val pato = OWLManager.createOWLOntologyManager().loadOntology(IRI.create("http://purl.obolibrary.org/obo/pato.owl"))
-    val patoReasoner = new StructuralReasonerFactory().createReasoner(pato)
-    Map(
-      "uberon" -> Knowledgebase("uberon", uberonReasoner),
-      "pato" -> Knowledgebase("pato", patoReasoner))
-  }
 
   private[this] def checkForMissingImports(manager: OWLOntologyManager): Set[IRI] = {
     val allImportedOntologies = manager.getOntologies.flatMap(_.getImportsDeclarations).map(_.getIRI).toSet
@@ -39,10 +32,10 @@ object Owlery {
     allImportedOntologies -- allLoadedOntologies
   }
 
-  private[this] def loadOntology(manager: OWLOntologyManager, file: File): Unit =
+  private[this] def loadOntologyFromLocalFile(manager: OWLOntologyManager, file: File): Unit =
     manager.loadOntologyFromOntologyDocument(new FileDocumentSource(file), loaderConfig)
 
-  private[this] def createManager(): OWLOntologyManager = {
+  private[this] def createOntologyFolderManager(): OWLOntologyManager = {
     val manager = OWLManager.createOWLOntologyManager
     manager.clearIRIMappers()
     manager.addIRIMapper(NullIRIMapper)
@@ -58,13 +51,14 @@ object Owlery {
     newOnt
   }
 
+  private[this] def configToKBConfig(config: Config) = KnowledgebaseConfig(config.getString("name"), config.getString("location"), config.getString("reasoner"))
+
   private[this] def loadKnowledgebases(configs: Set[KnowledgebaseConfig]): Map[String, Knowledgebase] =
     configs.map(loadKnowledgebase).map(kb => kb.name -> kb).toMap
 
   private[this] def loadKnowledgebase(config: KnowledgebaseConfig): Knowledgebase = {
-    val manager = createManager()
-    FileUtils.listFiles(new File(config.location), Array[String](), true).foreach(loadOntology(manager, _))
-    val ontology = importAll(manager)
+    val ontology = if (config.location.startsWith("http")) loadOntologyFromWeb(config.location)
+    else loadOntologyFromFolder(config.location)
     val reasoner = config.reasoner match {
       case "structural" => new StructuralReasonerFactory().createReasoner(ontology)
       case "elk" => ???
@@ -72,6 +66,17 @@ object Owlery {
       case _ => new StructuralReasonerFactory().createReasoner(ontology)
     }
     Knowledgebase(config.name, reasoner)
+  }
+
+  private[this] def loadOntologyFromWeb(location: String): OWLOntology = {
+    val manager = OWLManager.createOWLOntologyManager
+    manager.loadOntology(IRI.create(location))
+  }
+
+  private[this] def loadOntologyFromFolder(location: String): OWLOntology = {
+    val manager = createOntologyFolderManager()
+    FileUtils.listFiles(new File(location), Array[String](), true).foreach(loadOntologyFromLocalFile(manager, _))
+    importAll(manager)
   }
 
   private[this] case class KnowledgebaseConfig(name: String, location: String, reasoner: String)
