@@ -8,3 +8,4 @@ test-output/
 *.iml
 .classpath_nb
 .cache
+src/main/resources/application.conf
