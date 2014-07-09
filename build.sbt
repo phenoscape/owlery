@@ -24,7 +24,7 @@ libraryDependencies ++= {
     "org.semanticweb.elk"    %   "elk-owlapi"          % "0.4.1",
     "org.phenoscape"         %   "owlet"               % "1.0",
     "commons-io"             %   "commons-io"          % "2.4",
-    "org.apache.jena"        %   "apache-jena-libs"    % "2.10.1"
+    "org.apache.jena"        %   "apache-jena-libs"    % "2.11.2"
   )
 }
 
