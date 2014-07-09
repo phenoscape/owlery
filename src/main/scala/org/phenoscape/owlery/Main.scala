@@ -30,7 +30,8 @@ object Main extends App with SimpleRoutingApp {
   implicit object SPARQLQueryUnmarshaller extends Deserializer[HttpEntity, Query] {
 
     def apply(entity: HttpEntity): Deserialized[Query] = entity match {
-      case HttpEntity.NonEmpty(contentType, data) => SPARQLQueryValue(data.asString(HttpCharsets.`UTF-8`))
+      case HttpEntity.NonEmpty(`application/sparql-query`, data) => SPARQLQueryValue(data.asString(HttpCharsets.`UTF-8`))
+      case HttpEntity.NonEmpty(otherContentType, data) => Left(MalformedContent("Unsupported content type"))
       case HttpEntity.Empty => Left(MalformedContent("Empty query"))
     }
 
@@ -42,16 +43,6 @@ object Main extends App with SimpleRoutingApp {
       Right(QueryFactory.create(text))
     } catch {
       case e: QueryException => Left(MalformedContent(e.getMessage, e))
-    }
-
-  }
-
-  // this doesn't seem useful so far
-  implicit object KBValue extends Deserializer[String, Knowledgebase] {
-
-    def apply(text: String): Deserialized[Knowledgebase] = Owlery.kb(text) match {
-      case None => Left(MalformedContent(s"No such knowledgebase: $text"))
-      case Some(kb) => Right(kb)
     }
 
   }
