@@ -2,19 +2,19 @@ package org.phenoscape.owlery
 
 import scala.collection.JavaConversions._
 import scala.util.Right
-
 import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.IRI
-
+import com.hp.hpl.jena.query.Query
+import com.hp.hpl.jena.query.QueryException
+import com.hp.hpl.jena.query.QueryFactory
 import akka.actor.ActorSystem
-import spray.httpx.marshalling.ToResponseMarshallable.isMarshallable
-import spray.httpx.unmarshalling.Deserialized
-import spray.httpx.unmarshalling.Deserializer
-import spray.httpx.unmarshalling.MalformedContent
+import spray.http._
+import spray.httpx.unmarshalling._
 import spray.routing.Directive.pimpApply
 import spray.routing.SimpleRoutingApp
-import spray.routing.ValidationRejection
 import spray.routing.directives.ParamDefMagnet.apply
+import java.io.InputStreamReader
+import java.io.ByteArrayInputStream
 
 object Main extends App with SimpleRoutingApp {
 
@@ -24,6 +24,25 @@ object Main extends App with SimpleRoutingApp {
   implicit object IRIValue extends Deserializer[String, IRI] {
 
     def apply(text: String): Deserialized[IRI] = Right(IRI.create(text))
+
+  }
+  val `application/sparql-query` = MediaTypes.register(MediaType.custom("application/sparql-query"))
+  implicit object SPARQLQueryUnmarshaller extends Deserializer[HttpEntity, Query] {
+
+    def apply(entity: HttpEntity): Deserialized[Query] = entity match {
+      case HttpEntity.NonEmpty(contentType, data) => SPARQLQueryValue(data.asString(HttpCharsets.`UTF-8`))
+      case HttpEntity.Empty => Left(MalformedContent("Empty query"))
+    }
+
+  }
+
+  implicit object SPARQLQueryValue extends Deserializer[String, Query] {
+
+    def apply(text: String): Deserialized[Query] = try {
+      Right(QueryFactory.create(text))
+    } catch {
+      case e: QueryException => Left(MalformedContent(e.getMessage, e))
+    }
 
   }
 
@@ -47,49 +66,56 @@ object Main extends App with SimpleRoutingApp {
       Owlery.kb(kbName) match {
         case None => reject
         case Some(kb) => {
-          parameters('object.as[IRI], 'prefixes.?, 'direct ? true) { (owlObject, prefixes, direct) =>
-            path("subclasses") {
+          path("subclasses") {
+            parameters('object.as[IRI], 'prefixes.?, 'direct ? true) { (owlObject, prefixes, direct) =>
               complete {
                 val subclasses = kb.reasoner.getSubClasses(factory.getOWLClass(owlObject), direct).getFlattened
                 subclasses.map(_.getIRI.toString).mkString("\n")
               }
-            } ~
-              path("superclasses") {
+            }
+          } ~
+            path("superclasses") {
+              parameters('object.as[IRI], 'prefixes.?, 'direct ? true) { (owlObject, prefixes, direct) =>
                 complete {
                   val superclasses = kb.reasoner.getSuperClasses(factory.getOWLClass(owlObject), direct).getFlattened
                   superclasses.map(_.getIRI.toString).mkString("\n")
                 }
-              } ~
-              path("equivalent") {
+              }
+            } ~
+            path("equivalent") {
+              parameters('object.as[IRI], 'prefixes.?) { (owlObject, prefixes) =>
                 complete {
                   val equivalents = kb.reasoner.getEquivalentClasses(factory.getOWLClass(owlObject)).getEntities
                   equivalents.map(_.getIRI.toString).mkString("\n")
                 }
-              } ~
-              path("satisfiable") {
+              }
+            } ~
+            path("satisfiable") {
+              parameters('object.as[IRI], 'prefixes.?) { (owlObject, prefixes) =>
                 complete {
                   kb.reasoner.isSatisfiable(factory.getOWLClass(owlObject)).toString
                 }
-              } ~
-              path("types") {
+              }
+            } ~
+            path("types") {
+              parameters('object.as[IRI], 'prefixes.?, 'direct ? true) { (owlObject, prefixes, direct) =>
                 complete {
                   val types = kb.reasoner.getTypes(factory.getOWLNamedIndividual(owlObject), direct).getFlattened
                   types.map(_.getIRI.toString).mkString("\n")
                 }
               }
-          } ~
+            } ~
             path("sparql") {
               get {
-                complete {
-                  kbName + " owlet SPARQL endpoint: GET"
+                parameter('query.as[Query]) { query =>
+                  complete {
+                    Owlery.performSPARQLQuery(query)
+                  }
                 }
               } ~
-              post {
-                complete {
-                  kbName + " owlet SPARQL endpoint: POST"
+                post {
+                  handleWith(Owlery.performSPARQLQuery)
                 }
-              }
-
             } ~
             pathEnd {
               complete {

@@ -18,6 +18,7 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigObject
 import com.typesafe.config.Config
 import org.semanticweb.elk.owlapi.ElkReasonerFactory
+import com.hp.hpl.jena.query.Query
 
 object Owlery {
 
@@ -26,6 +27,8 @@ object Owlery {
   private[this] val loaderConfig = new OWLOntologyLoaderConfiguration().setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT)
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
+  
+  def performSPARQLQuery(query: Query): String = ???
 
   private[this] def checkForMissingImports(manager: OWLOntologyManager): Set[IRI] = {
     val allImportedOntologies = manager.getOntologies.flatMap(_.getImportsDeclarations).map(_.getIRI).toSet
