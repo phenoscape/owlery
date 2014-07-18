@@ -100,12 +100,12 @@ object Main extends App with SimpleRoutingApp {
               get {
                 parameter('query.as[Query]) { query =>
                   complete {
-                    Owlery.performSPARQLQuery(query)
+                    kb.performSPARQLQuery(query)
                   }
                 }
               } ~
                 post {
-                  handleWith(Owlery.performSPARQLQuery)
+                  handleWith(kb.performSPARQLQuery)
                 }
             } ~
             pathEnd {
