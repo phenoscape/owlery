@@ -22,7 +22,7 @@ libraryDependencies ++= {
     "org.specs2"             %%  "specs2-core"         % "2.3.7" % "test",
     "net.sourceforge.owlapi" %   "owlapi-distribution" % "3.5.0",
     "org.semanticweb.elk"    %   "elk-owlapi"          % "0.4.1",
-    "org.phenoscape"         %   "owlet"               % "1.0",
+    "org.phenoscape"         %   "owlet"               % "1.1.1",
     "commons-io"             %   "commons-io"          % "2.4",
     "org.apache.jena"        %   "apache-jena-libs"    % "2.11.2"
   )

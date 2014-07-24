@@ -19,6 +19,7 @@ import com.typesafe.config.ConfigObject
 import com.typesafe.config.Config
 import org.semanticweb.elk.owlapi.ElkReasonerFactory
 import com.hp.hpl.jena.query.Query
+import com.hp.hpl.jena.query.QueryExecutionFactory
 
 object Owlery {
 
@@ -27,8 +28,6 @@ object Owlery {
   private[this] val loaderConfig = new OWLOntologyLoaderConfiguration().setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT)
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
-  
-  def performSPARQLQuery(query: Query): String = ???
 
   private[this] def checkForMissingImports(manager: OWLOntologyManager): Set[IRI] = {
     val allImportedOntologies = manager.getOntologies.flatMap(_.getImportsDeclarations).map(_.getIRI).toSet
@@ -49,9 +48,8 @@ object Owlery {
   private[this] def importAll(manager: OWLOntologyManager): OWLOntology = {
     val onts = manager.getOntologies()
     val newOnt = manager.createOntology
-    onts foreach { ont =>
+    for (ont <- onts)
       manager.applyChange(new AddImport(newOnt, factory.getOWLImportsDeclaration(ont.getOntologyID.getOntologyIRI)))
-    }
     newOnt
   }
 

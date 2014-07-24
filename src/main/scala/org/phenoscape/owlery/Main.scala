@@ -15,6 +15,7 @@ import spray.routing.SimpleRoutingApp
 import spray.routing.directives.ParamDefMagnet.apply
 import java.io.InputStreamReader
 import java.io.ByteArrayInputStream
+import org.phenoscape.owlery.SPARQLFormats._
 
 object Main extends App with SimpleRoutingApp {
 
@@ -24,26 +25,6 @@ object Main extends App with SimpleRoutingApp {
   implicit object IRIValue extends Deserializer[String, IRI] {
 
     def apply(text: String): Deserialized[IRI] = Right(IRI.create(text))
-
-  }
-  val `application/sparql-query` = MediaTypes.register(MediaType.custom("application/sparql-query"))
-  implicit object SPARQLQueryUnmarshaller extends Deserializer[HttpEntity, Query] {
-
-    def apply(entity: HttpEntity): Deserialized[Query] = entity match {
-      case HttpEntity.NonEmpty(`application/sparql-query`, data) => SPARQLQueryValue(data.asString(HttpCharsets.`UTF-8`))
-      case HttpEntity.NonEmpty(otherContentType, data) => Left(MalformedContent("Unsupported content type"))
-      case HttpEntity.Empty => Left(MalformedContent("Empty query"))
-    }
-
-  }
-
-  implicit object SPARQLQueryValue extends Deserializer[String, Query] {
-
-    def apply(text: String): Deserialized[Query] = try {
-      Right(QueryFactory.create(text))
-    } catch {
-      case e: QueryException => Left(MalformedContent(e.getMessage, e))
-    }
 
   }
 
@@ -100,12 +81,12 @@ object Main extends App with SimpleRoutingApp {
               get {
                 parameter('query.as[Query]) { query =>
                   complete {
-                    Owlery.performSPARQLQuery(query)
+                    kb.performSPARQLQuery(query)
                   }
                 }
               } ~
                 post {
-                  handleWith(Owlery.performSPARQLQuery)
+                  handleWith(kb.performSPARQLQuery)
                 }
             } ~
             pathEnd {

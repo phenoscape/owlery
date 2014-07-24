@@ -35,7 +35,7 @@
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.semanticweb.elk/elk-util-logging/jars/elk-util-logging-0.4.1.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.semanticweb.elk/elk-util-common/jars/elk-util-common-0.4.1.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.semanticweb.elk/elk-util-io/jars/elk-util-io-0.4.1.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.phenoscape/owlet/jars/owlet-1.0.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.phenoscape/owlet/jars/owlet-1.1.1.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/log4j/log4j/bundles/log4j-1.2.17.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.apache.jena/jena-tdb/jars/jena-tdb-1.0.2.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.apache.jena/jena-arq/jars/jena-arq-2.11.2.jar"/>
