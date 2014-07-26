@@ -15,7 +15,7 @@ maintainer in Debian := "James Balhoff"
 
 daemonUser in Linux := normalizedName.value // user which will execute the application
 
-daemonGroup in Linux := daemonUser.value    // group which will execute the application
+daemonGroup in Linux := normalizedName.value    // group which will execute the application
 
 scalaVersion  := "2.10.3"
 
