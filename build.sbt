@@ -1,8 +1,21 @@
+import com.typesafe.sbt.SbtNativePackager._
+import NativePackagerKeys._
+
 organization  := "org.phenoscape"
 
 name          := "owlery"
 
 version       := "0.1"
+
+packageArchetype.java_server
+
+packageDescription in Debian := "Owlery"
+
+maintainer in Debian := "James Balhoff"
+
+daemonUser in Linux := normalizedName.value // user which will execute the application
+
+daemonGroup in Linux := daemonUser.value    // group which will execute the application
 
 scalaVersion  := "2.10.3"
 
