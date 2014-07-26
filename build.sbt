@@ -13,6 +13,12 @@ packageDescription in Debian := "Owlery"
 
 maintainer in Debian := "James Balhoff"
 
+maintainer in Linux := "James Balhoff <balhoff@nescent.org>"
+
+packageSummary in Linux := "Owlery OWL server"
+
+packageDescription := "A web api for OWL API reasoners"
+
 daemonUser in Linux := normalizedName.value // user which will execute the application
 
 daemonGroup in Linux := normalizedName.value    // group which will execute the application
