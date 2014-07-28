@@ -16,6 +16,7 @@ import spray.routing.directives.ParamDefMagnet.apply
 import java.io.InputStreamReader
 import java.io.ByteArrayInputStream
 import org.phenoscape.owlery.SPARQLFormats._
+import com.typesafe.config.ConfigFactory
 
 object Main extends App with SimpleRoutingApp {
 
@@ -32,7 +33,10 @@ object Main extends App with SimpleRoutingApp {
 
   initializeReasoners()
 
-  startServer(interface = "localhost", port = 8080) {
+  val conf = ConfigFactory.load()
+  val serverPort = conf.getInt("owlery.port")
+
+  startServer(interface = "localhost", port = serverPort) {
 
     pathPrefix("kb" / Segment) { kbName =>
       Owlery.kb(kbName) match {
