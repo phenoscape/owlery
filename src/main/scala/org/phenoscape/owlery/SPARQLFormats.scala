@@ -16,7 +16,17 @@ object SPARQLFormats {
 
   implicit val SPARQLXMLMarshaller = Marshaller.delegate[ResultSet, String](`application/sparql-results+xml`, MediaTypes.`application/xml`, MediaTypes.`text/xml`)(ResultSetFormatter.asXMLString(_))
 
-  implicit val SPARQLQueryUnmarshaller = Unmarshaller.delegate[String, Query](`application/sparql-query`)(QueryFactory.create(_))
+  val SPARQLQueryBodyUnmarshaller = Unmarshaller.delegate[String, Query](`application/sparql-query`)(QueryFactory.create(_))
+
+  val SPARQLQueryFormUnmarshaller = Unmarshaller.delegate[FormData, Query](MediaTypes.`application/x-www-form-urlencoded`) { data =>
+    data.fields.filter(_._1 == "query").headOption match {
+      case Some((param, queryText)) => QueryFactory.create(queryText)
+      case None => throw new QueryException
+    }
+
+  }
+
+  implicit val SPARQLQueryUnmarshaller = Unmarshaller.oneOf(SPARQLQueryBodyUnmarshaller, SPARQLQueryFormUnmarshaller)
 
   implicit object SPARQLQueryValue extends Deserializer[String, Query] {
 
