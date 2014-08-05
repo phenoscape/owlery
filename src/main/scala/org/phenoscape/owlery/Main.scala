@@ -107,6 +107,22 @@ object Main extends App with SimpleRoutingApp {
                   }
                 }
             } ~
+            path("expand") {
+              get {
+                parameter('query.as[Query]) { query =>
+                  detach() {
+                    complete {
+                      kb.expandSPARQLQuery(query)
+                    }
+                  }
+                }
+              } ~
+                post {
+                  detach() {
+                    handleWith(kb.expandSPARQLQuery)
+                  }
+                }
+            } ~
             pathEnd {
               detach() {
                 complete {

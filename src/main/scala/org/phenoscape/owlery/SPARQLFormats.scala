@@ -28,6 +28,8 @@ object SPARQLFormats {
 
   implicit val SPARQLQueryUnmarshaller = Unmarshaller.oneOf(SPARQLQueryBodyUnmarshaller, SPARQLQueryFormUnmarshaller)
 
+  implicit val SPARQLQueryMarshaller = Marshaller.delegate[Query, String](`application/sparql-query`, MediaTypes.`text/plain`)(_.toString)
+
   implicit object SPARQLQueryValue extends Deserializer[String, Query] {
 
     def apply(text: String): Deserialized[Query] = try {

@@ -7,9 +7,10 @@ import com.hp.hpl.jena.query.ResultSet
 
 case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
-  def performSPARQLQuery(query: Query): ResultSet = {
-    val owlet = new Owlet(this.reasoner)
-    owlet.performSPARQLQuery(query)
-  }
+  lazy val owlet = new Owlet(this.reasoner)
+
+  def performSPARQLQuery(query: Query): ResultSet = owlet.performSPARQLQuery(query)
+
+  def expandSPARQLQuery(query: Query): Query = owlet.expandQuery(query)
 
 }
