@@ -4,7 +4,7 @@ HOST: http://www.google.com
 # Owlery
 Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based reasoner containing a configurable set of ontologies (a "knowledgebase").
 
-## Knowledgebase [/kb/{kb}]
+## Knowledgebase [/kbs/{kb}]
 ### Display Knowledgebase information and status [GET]
 
 + Parameters
@@ -16,7 +16,7 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
 
         No such knowledgebase: phenoscape
         
-## Subclasses [/kb/{kb}/subclasses{?object,prefixes,direct}]
+## Subclasses [/kbs/{kb}/subclasses{?object,prefixes,direct}]
 ### Get subclasses of a named class or expression [GET]
 
 + Parameters
@@ -26,7 +26,7 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
     + direct = `true` (optional, boolean)
 + Response 200 (text/plain)
 
-## Superclasses [/kb/{kb}/superclasses{?object,prefixes,direct}]
+## Superclasses [/kbs/{kb}/superclasses{?object,prefixes,direct}]
 ### Get superclasses of a named class or expression [GET]
 
 + Parameters
@@ -36,7 +36,7 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
     + direct = `true` (optional, boolean)
 + Response 200 (text/plain)
 
-## Equivalent classes [/kb/{kb}/equivalent{?object,prefixes}]
+## Equivalent classes [/kbs/{kb}/equivalent{?object,prefixes}]
 ### Get equivalent classes of a named class or expression [GET]
 
 + Parameters
@@ -45,7 +45,7 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
     + prefixes (optional, string)
 + Response 200 (text/plain)
 
-## Satisfiability [/kb/{kb}/satisfiable{?object,prefixes}]
+## Satisfiability [/kbs/{kb}/satisfiable{?object,prefixes}]
 ### Returns whether the given named class or expression is satisfiable [GET]
 
 + Parameters
@@ -56,7 +56,7 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
 
         true
         
-## Individuals [/kb/{kb}/individuals{?object,prefixes,direct}]
+## Individuals [/kbs/{kb}/individuals{?object,prefixes,direct}]
 ### Get individuals of a named class or expression [GET]
 
 + Parameters
@@ -66,7 +66,7 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
     + direct = `true` (optional, boolean)
 + Response 200 (text/plain)
 
-## Types [/kb/{kb}/types{?object,prefixes,direct}]
+## Types [/kbs/{kb}/types{?object,prefixes,direct}]
 ### Get types of a named individual [GET]
 
 + Parameters
@@ -76,7 +76,7 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
     + direct = `true` (optional, boolean)
 + Response 200 (text/plain)
 
-## SPARQL endpoint [/kb/{kb}/sparql{?query}]
+## SPARQL endpoint [/kbs/{kb}/sparql{?query}]
 Perform SPARQL query using Owlet-style embedded class expressions
 ### Perform SPARQL query encoded in URL parameter [GET]
 
@@ -94,7 +94,7 @@ Perform SPARQL query using Owlet-style embedded class expressions
 + Request (application/x-www-form-urlencoded)
 + Response 200 (application/sparql-results+xml)
 
-## SPARQL query expander [/kb/{kb}/expand{?query}]
+## SPARQL query expander [/kbs/{kb}/expand{?query}]
 Expand a SPARQL query, transforming Owlet-style embedded class expressions into `FILTER`s
 ### Expand SPARQL query encoded in URL parameter [GET]
 
