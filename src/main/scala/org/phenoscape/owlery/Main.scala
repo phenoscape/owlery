@@ -38,7 +38,7 @@ object Main extends App with SimpleRoutingApp {
 
   startServer(interface = "localhost", port = serverPort) {
 
-    pathPrefix("kb" / Segment) { kbName =>
+    pathPrefix("kbs" / Segment) { kbName =>
       Owlery.kb(kbName) match {
         case None => reject
         case Some(kb) => {
