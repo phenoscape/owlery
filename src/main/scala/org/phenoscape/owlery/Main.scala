@@ -4,6 +4,7 @@ import scala.collection.JavaConversions._
 import scala.util.Right
 import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.IRI
+import org.semanticweb.owlapi.model.OWLClassExpression
 import com.hp.hpl.jena.query.Query
 import com.hp.hpl.jena.query.QueryException
 import com.hp.hpl.jena.query.QueryFactory
@@ -16,7 +17,15 @@ import spray.routing.directives.ParamDefMagnet.apply
 import java.io.InputStreamReader
 import java.io.ByteArrayInputStream
 import org.phenoscape.owlery.SPARQLFormats._
+import org.phenoscape.owlery.OWLFormats._
 import com.typesafe.config.ConfigFactory
+import spray.httpx.SprayJsonSupport._
+import spray.json._
+import spray.json.DefaultJsonProtocol._
+import scala.collection.immutable.Map
+import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
+import spray.routing.Directive
+import spray.routing.RequestContext
 
 object Main extends App with SimpleRoutingApp {
 
@@ -28,6 +37,38 @@ object Main extends App with SimpleRoutingApp {
     def apply(text: String): Deserialized[IRI] = Right(IRI.create(text))
 
   }
+
+  implicit object SimpleMapFromJSONString extends Deserializer[String, Map[String, String]] {
+
+    def apply(text: String): Deserialized[Map[String, String]] = text.parseJson match {
+      case o: JsObject => Right(o.fields.map { case (key, value) => key -> value.toString })
+      case _ => deserializationError("JSON object expected")
+    }
+
+  }
+
+  case class PrefixedManchesterClassExpression(text: String, prefixes: Map[String, String]) {
+
+    val parseResult = ManchesterSyntaxClassExpressionParser.parse(text, prefixes)
+    require(parseResult.isSuccess, parseResult.swap.getOrElse("Error parsing class expression"))
+    val expression = parseResult.toOption.get
+
+  }
+
+  case class PrefixedIndividualIRI(text: String, prefixes: Map[String, String]) {
+
+    val parseResult = ManchesterSyntaxClassExpressionParser.parseIRI(text, prefixes)
+    require(parseResult.isSuccess, parseResult.swap.getOrElse("Error parsing individual IRI"))
+    val iri = parseResult.toOption.get
+
+  }
+
+  val NoPrefixes = Map[String, String]()
+
+  def objectAndPrefixParametersToClass(subroute: OWLClassExpression => (RequestContext => Unit)): RequestContext => Unit =
+    parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedManchesterClassExpression) { ce =>
+      subroute(ce.expression)
+    }
 
   def initializeReasoners() = Owlery.kbs.values.foreach(_.reasoner.isConsistent)
 
@@ -43,50 +84,56 @@ object Main extends App with SimpleRoutingApp {
         case None => reject
         case Some(kb) => {
           path("subclasses") {
-            parameters('object.as[IRI], 'prefixes.?, 'direct ? true) { (owlObject, prefixes, direct) =>
-              detach() {
-                complete {
-                  val subclasses = kb.reasoner.getSubClasses(factory.getOWLClass(owlObject), direct).getFlattened
-                  subclasses.map(_.getIRI.toString).mkString("\n")
+            objectAndPrefixParametersToClass { expression =>
+              parameters('direct.?(true)) { direct =>
+                detach() {
+                  complete {
+                    val subclasses = kb.reasoner.getSubClasses(expression, direct).getFlattened
+                    subclasses.map(_.getIRI.toString).mkString("\n")
+                  }
                 }
               }
             }
           } ~
             path("superclasses") {
-              parameters('object.as[IRI], 'prefixes.?, 'direct ? true) { (owlObject, prefixes, direct) =>
-                detach() {
-                  complete {
-                    val superclasses = kb.reasoner.getSuperClasses(factory.getOWLClass(owlObject), direct).getFlattened
-                    superclasses.map(_.getIRI.toString).mkString("\n")
+              objectAndPrefixParametersToClass { expression =>
+                parameters('direct.?(true)) { direct =>
+                  detach() {
+                    complete {
+                      val superclasses = kb.reasoner.getSuperClasses(expression, direct).getFlattened
+                      superclasses.map(_.getIRI.toString).mkString("\n")
+                    }
                   }
                 }
               }
             } ~
             path("equivalent") {
-              parameters('object.as[IRI], 'prefixes.?) { (owlObject, prefixes) =>
+              objectAndPrefixParametersToClass { expression =>
                 detach() {
                   complete {
-                    val equivalents = kb.reasoner.getEquivalentClasses(factory.getOWLClass(owlObject)).getEntities
+                    val equivalents = kb.reasoner.getEquivalentClasses(expression).getEntities
                     equivalents.map(_.getIRI.toString).mkString("\n")
                   }
                 }
               }
             } ~
             path("satisfiable") {
-              parameters('object.as[IRI], 'prefixes.?) { (owlObject, prefixes) =>
+              objectAndPrefixParametersToClass { expression =>
                 detach() {
                   complete {
-                    kb.reasoner.isSatisfiable(factory.getOWLClass(owlObject)).toString
+                    kb.reasoner.isSatisfiable(expression).toString
                   }
                 }
               }
             } ~
             path("types") {
-              parameters('object.as[IRI], 'prefixes.?, 'direct ? true) { (owlObject, prefixes, direct) =>
-                detach() {
-                  complete {
-                    val types = kb.reasoner.getTypes(factory.getOWLNamedIndividual(owlObject), direct).getFlattened
-                    types.map(_.getIRI.toString).mkString("\n")
+              parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
+                parameters('direct.?(true)) { direct =>
+                  detach() {
+                    complete {
+                      val types = kb.reasoner.getTypes(factory.getOWLNamedIndividual(preIRI.iri), direct).getFlattened
+                      types.map(_.getIRI.toString).mkString("\n")
+                    }
                   }
                 }
               }
