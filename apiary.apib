@@ -8,51 +8,80 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
 ### Display Knowledgebase information and status [GET]
 
 + Parameters
-    + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
-+ Response 200 (text/plain)
+    + kb (string, `uberon`) ... label for a knowledgebase loaded into Owlery
++ Response 200 (application/json)
 
-        Knowledgebase phenoscape is consistent
-+ Response 404
-
-        No such knowledgebase: phenoscape
+```json
+{
+  "label": "uberon",
+  "isConsistent": true,
+  "logicalAxiomsCount": 43938,
+  "@context": {
+    "hasInstance": {
+      "@reverse": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "@type": "@id"
+    },
+    "equivalentClass": {
+      "@id": "http://www.w3.org/2002/07/owl#equivalentClass",
+      "@type": "@id"
+    },
+    "subClassOf": {
+      "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "@type": "@id"
+    },
+    "value": {
+      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#value",
+      "@type": "@id"
+    },
+    "isSatisfiable": {
+      "@id": "http://purl.org/phenoscape/owlery.owl#isSatisfiable",
+      "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+    },
+    "superClassOf": {
+      "@reverse": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "@type": "@id"
+    }
+  }
+}
+```
         
 ## Subclasses [/kbs/{kb}/subclasses{?object,prefixes,direct}]
 ### Get subclasses of a named class or expression [GET]
 
 + Parameters
     + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
-    + object (required, string, `http://purl.obolibrary.org/obo/UBERON_0002101`) ... URI for a named class in the KB
-    + prefixes (optional, string)
+    + object (required, string, `part_of: some obo:UBERON_0002101`) ... Manchester-syntax OWL class expression
+    + prefixes (optional, string, `{"obo": "http://purl.obolibrary.org/obo/", "part_of": "http://purl.obolibrary.org/obo/BFO_0000050"}`) ... JSON format prefix map
     + direct = `true` (optional, boolean)
-+ Response 200 (text/plain)
++ Response 200 (application/json)
 
 ## Superclasses [/kbs/{kb}/superclasses{?object,prefixes,direct}]
 ### Get superclasses of a named class or expression [GET]
 
 + Parameters
     + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
-    + object (required, string, `http://purl.obolibrary.org/obo/UBERON_0002101`) ... URI for a named class in the KB
-    + prefixes (optional, string)
+    + object (required, string, `<http://purl.obolibrary.org/obo/UBERON_0002101>`) ... Manchester-syntax OWL class expression
+    + prefixes (optional, `{"obo": "http://purl.obolibrary.org/obo/"}`) ... JSON format prefix map
     + direct = `true` (optional, boolean)
-+ Response 200 (text/plain)
++ Response 200 (application/json)
 
 ## Equivalent classes [/kbs/{kb}/equivalent{?object,prefixes}]
 ### Get equivalent classes of a named class or expression [GET]
 
 + Parameters
     + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
-    + object (required, string, `http://purl.obolibrary.org/obo/UBERON_0002101`) ... URI for a named class in the KB
-    + prefixes (optional, string)
-+ Response 200 (text/plain)
+    + object (required, string, `<http://purl.obolibrary.org/obo/UBERON_0002101>`) ... Manchester-syntax OWL class expression
+    + prefixes (optional, `{"obo": "http://purl.obolibrary.org/obo/"}`) ... JSON format prefix map
++ Response 200 (application/json)
 
 ## Satisfiability [/kbs/{kb}/satisfiable{?object,prefixes}]
 ### Returns whether the given named class or expression is satisfiable [GET]
 
 + Parameters
     + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
-    + object (required, string, `http://purl.obolibrary.org/obo/UBERON_0002101`) ... URI for a named class in the KB
-    + prefixes (optional, string)
-+ Response 200 (text/plain)
+    + object (required, string, `<http://purl.obolibrary.org/obo/UBERON_0002101>`) ... Manchester-syntax OWL class expression
+    + prefixes (optional, `{"obo": "http://purl.obolibrary.org/obo/"}`) ... JSON format prefix map
++ Response 200 (application/json)
 
         true
         
@@ -61,20 +90,20 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
 
 + Parameters
     + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
-    + object (required, string, `http://purl.obolibrary.org/obo/UBERON_0002101`) ... URI for a named class in the KB
-    + prefixes (optional, string)
+    + object (required, string, `<http://purl.obolibrary.org/obo/UBERON_0002101>`) ... Manchester-syntax OWL class expression
+    + prefixes (optional, `{"obo": "http://purl.obolibrary.org/obo/"}`) ... JSON format prefix map
     + direct = `true` (optional, boolean)
-+ Response 200 (text/plain)
++ Response 200 (application/json)
 
 ## Types [/kbs/{kb}/types{?object,prefixes,direct}]
 ### Get types of a named individual [GET]
 
 + Parameters
     + kb (string, `phenoscape`) ... label for a knowledgebase loaded into Owlery
-    + object (required, string, `http://example.org/person/1234`) ... URI for a named individual in the KB
-    + prefixes (optional, string)
+    + object (required, string, `<http://example.org/person/1234>`) ... Full or prefixed URI for a named individual in the KB
+    + prefixes (optional, `{"obo": "http://purl.obolibrary.org/obo/"}`) ... JSON format prefix map
     + direct = `true` (optional, boolean)
-+ Response 200 (text/plain)
++ Response 200 (application/json)
 
 ## SPARQL endpoint [/kbs/{kb}/sparql{?query}]
 Perform SPARQL query using Owlet-style embedded class expressions
