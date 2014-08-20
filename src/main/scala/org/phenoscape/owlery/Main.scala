@@ -85,11 +85,10 @@ object Main extends App with SimpleRoutingApp {
         case Some(kb) => {
           path("subclasses") {
             objectAndPrefixParametersToClass { expression =>
-              parameters('direct.?(true)) { direct =>
+              parameters('direct.?(false)) { direct =>
                 detach() {
                   complete {
-                    val subclasses = kb.reasoner.getSubClasses(expression, direct).getFlattened
-                    subclasses.map(_.getIRI.toString).mkString("\n")
+                    kb.querySubClasses(expression, direct)
                   }
                 }
               }
@@ -97,11 +96,21 @@ object Main extends App with SimpleRoutingApp {
           } ~
             path("superclasses") {
               objectAndPrefixParametersToClass { expression =>
-                parameters('direct.?(true)) { direct =>
+                parameters('direct.?(false)) { direct =>
                   detach() {
                     complete {
-                      val superclasses = kb.reasoner.getSuperClasses(expression, direct).getFlattened
-                      superclasses.map(_.getIRI.toString).mkString("\n")
+                      kb.querySuperClasses(expression, direct)
+                    }
+                  }
+                }
+              }
+            } ~
+            path("instances") {
+              objectAndPrefixParametersToClass { expression =>
+                parameters('direct.?(false)) { direct =>
+                  detach() {
+                    complete {
+                      kb.queryInstances(expression, direct)
                     }
                   }
                 }
@@ -111,8 +120,7 @@ object Main extends App with SimpleRoutingApp {
               objectAndPrefixParametersToClass { expression =>
                 detach() {
                   complete {
-                    val equivalents = kb.reasoner.getEquivalentClasses(expression).getEntities
-                    equivalents.map(_.getIRI.toString).mkString("\n")
+                    kb.queryEquivalentClasses(expression)
                   }
                 }
               }
@@ -121,7 +129,7 @@ object Main extends App with SimpleRoutingApp {
               objectAndPrefixParametersToClass { expression =>
                 detach() {
                   complete {
-                    kb.reasoner.isSatisfiable(expression).toString
+                    kb.isSatisfiable(expression)
                   }
                 }
               }
@@ -131,8 +139,7 @@ object Main extends App with SimpleRoutingApp {
                 parameters('direct.?(true)) { direct =>
                   detach() {
                     complete {
-                      val types = kb.reasoner.getTypes(factory.getOWLNamedIndividual(preIRI.iri), direct).getFlattened
-                      types.map(_.getIRI.toString).mkString("\n")
+                      kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct)
                     }
                   }
                 }
@@ -173,8 +180,7 @@ object Main extends App with SimpleRoutingApp {
             pathEnd {
               detach() {
                 complete {
-                  val consistent = if (kb.reasoner.isConsistent) "consistent" else "inconsistent"
-                  s"Knowledgebase $kbName is $consistent"
+                  kb.summary
                 }
               }
             }

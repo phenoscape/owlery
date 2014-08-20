@@ -1,18 +1,22 @@
 package org.phenoscape.owlery
 
+import scala.collection.JavaConverters._
+
+import com.hp.hpl.jena.query.Query
+import com.hp.hpl.jena.query.QueryException
+import com.hp.hpl.jena.query.QueryFactory
+import com.hp.hpl.jena.query.ResultSet
+import com.hp.hpl.jena.query.ResultSetFormatter
+
 import spray.http._
 import spray.httpx.marshalling._
 import spray.httpx.unmarshalling._
-import com.hp.hpl.jena.query.Query
-import com.hp.hpl.jena.query.ResultSet
-import com.hp.hpl.jena.query.ResultSetFormatter
-import com.hp.hpl.jena.query.QueryFactory
-import com.hp.hpl.jena.query.QueryException
 
 object SPARQLFormats {
 
   val `application/sparql-results+xml` = MediaTypes.register(MediaType.custom("application/sparql-results+xml"))
   val `application/sparql-query` = MediaTypes.register(MediaType.custom("application/sparql-query"))
+  val `application/ld+json` = MediaTypes.register(MediaType.custom("application/ld+json"))
 
   implicit val SPARQLXMLMarshaller = Marshaller.delegate[ResultSet, String](`application/sparql-results+xml`, MediaTypes.`application/xml`, MediaTypes.`text/xml`)(ResultSetFormatter.asXMLString(_))
 
@@ -29,7 +33,7 @@ object SPARQLFormats {
   implicit val SPARQLQueryUnmarshaller = Unmarshaller.oneOf(SPARQLQueryBodyUnmarshaller, SPARQLQueryFormUnmarshaller)
 
   implicit val SPARQLQueryMarshaller = Marshaller.delegate[Query, String](`application/sparql-query`, MediaTypes.`text/plain`)(_.toString)
-
+  
   implicit object SPARQLQueryValue extends Deserializer[String, Query] {
 
     def apply(text: String): Deserialized[Query] = try {
