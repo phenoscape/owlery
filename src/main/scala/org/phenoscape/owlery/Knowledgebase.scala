@@ -47,7 +47,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   def expandSPARQLQuery(query: Query): Query = owlet.expandQuery(query)
 
   def querySuperClasses(expression: OWLClassExpression, direct: Boolean): JsObject = {
-    val results = ("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.map(_.getIRI.toString).toList)
+    val results = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.map(_.getIRI.toString).toList)
     merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
