@@ -4,6 +4,17 @@ HOST: http://www.google.com
 # Owlery
 Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based reasoner containing a configurable set of ontologies (a "knowledgebase").
 
+# Group Knowledgebases
+
+## List available knowledgebases [/kbs]
+### List names of available knowledgebases in this instance of Owlery [GET]
+
++ Response 200 (application/json)
+
+```json
+["uberon", "pato", "bspo"]
+```
+
 ## Knowledgebase [/kbs/{kb}]
 ### Display Knowledgebase information and status [GET]
 
@@ -44,6 +55,8 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
   }
 }
 ```
+
+# Group DL queries
         
 ## Subclasses [/kbs/{kb}/subclasses{?object,prefixes,direct}]
 ### Get subclasses of a named class or expression [GET]
@@ -104,6 +117,8 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
     + prefixes (optional, `{"obo": "http://purl.obolibrary.org/obo/"}`) ... JSON format prefix map
     + direct = `true` (optional, boolean)
 + Response 200 (application/json)
+
+# Group SPARQL services
 
 ## SPARQL endpoint [/kbs/{kb}/sparql{?query}]
 Perform SPARQL query using Owlet-style embedded class expressions
