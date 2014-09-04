@@ -79,114 +79,122 @@ object Main extends App with SimpleRoutingApp {
 
   startServer(interface = "localhost", port = serverPort) {
 
-    pathPrefix("kbs" / Segment) { kbName =>
-      Owlery.kb(kbName) match {
-        case None => reject
-        case Some(kb) => {
-          path("subclasses") {
-            objectAndPrefixParametersToClass { expression =>
-              parameters('direct.?(false)) { direct =>
-                detach() {
-                  complete {
-                    kb.querySubClasses(expression, direct)
-                  }
-                }
-              }
-            }
-          } ~
-            path("superclasses") {
+    pathPrefix("kbs") {
+      pathPrefix(Segment) { kbName =>
+        Owlery.kb(kbName) match {
+          case None => reject
+          case Some(kb) => {
+            path("subclasses") {
               objectAndPrefixParametersToClass { expression =>
                 parameters('direct.?(false)) { direct =>
                   detach() {
                     complete {
-                      kb.querySuperClasses(expression, direct)
+                      kb.querySubClasses(expression, direct)
                     }
                   }
                 }
               }
             } ~
-            path("instances") {
-              objectAndPrefixParametersToClass { expression =>
-                parameters('direct.?(false)) { direct =>
-                  detach() {
-                    complete {
-                      kb.queryInstances(expression, direct)
-                    }
-                  }
-                }
-              }
-            } ~
-            path("equivalent") {
-              objectAndPrefixParametersToClass { expression =>
-                detach() {
-                  complete {
-                    kb.queryEquivalentClasses(expression)
-                  }
-                }
-              }
-            } ~
-            path("satisfiable") {
-              objectAndPrefixParametersToClass { expression =>
-                detach() {
-                  complete {
-                    kb.isSatisfiable(expression)
-                  }
-                }
-              }
-            } ~
-            path("types") {
-              parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
-                parameters('direct.?(true)) { direct =>
-                  detach() {
-                    complete {
-                      kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct)
-                    }
-                  }
-                }
-              }
-            } ~
-            path("sparql") {
-              get {
-                parameter('query.as[Query]) { query =>
-                  detach() {
-                    complete {
-                      kb.performSPARQLQuery(query)
+              path("superclasses") {
+                objectAndPrefixParametersToClass { expression =>
+                  parameters('direct.?(false)) { direct =>
+                    detach() {
+                      complete {
+                        kb.querySuperClasses(expression, direct)
+                      }
                     }
                   }
                 }
               } ~
-                post {
-                  detach() {
-                    handleWith(kb.performSPARQLQuery)
-                  }
-                }
-            } ~
-            path("expand") {
-              get {
-                parameter('query.as[Query]) { query =>
-                  detach() {
-                    complete {
-                      kb.expandSPARQLQuery(query)
+              path("instances") {
+                objectAndPrefixParametersToClass { expression =>
+                  parameters('direct.?(false)) { direct =>
+                    detach() {
+                      complete {
+                        kb.queryInstances(expression, direct)
+                      }
                     }
                   }
                 }
               } ~
-                post {
+              path("equivalent") {
+                objectAndPrefixParametersToClass { expression =>
                   detach() {
-                    handleWith(kb.expandSPARQLQuery)
+                    complete {
+                      kb.queryEquivalentClasses(expression)
+                    }
                   }
                 }
-            } ~
-            pathEnd {
-              detach() {
-                complete {
-                  kb.summary
+              } ~
+              path("satisfiable") {
+                objectAndPrefixParametersToClass { expression =>
+                  detach() {
+                    complete {
+                      kb.isSatisfiable(expression)
+                    }
+                  }
+                }
+              } ~
+              path("types") {
+                parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
+                  parameters('direct.?(true)) { direct =>
+                    detach() {
+                      complete {
+                        kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct)
+                      }
+                    }
+                  }
+                }
+              } ~
+              path("sparql") {
+                get {
+                  parameter('query.as[Query]) { query =>
+                    detach() {
+                      complete {
+                        kb.performSPARQLQuery(query)
+                      }
+                    }
+                  }
+                } ~
+                  post {
+                    detach() {
+                      handleWith(kb.performSPARQLQuery)
+                    }
+                  }
+              } ~
+              path("expand") {
+                get {
+                  parameter('query.as[Query]) { query =>
+                    detach() {
+                      complete {
+                        kb.expandSPARQLQuery(query)
+                      }
+                    }
+                  }
+                } ~
+                  post {
+                    detach() {
+                      handleWith(kb.expandSPARQLQuery)
+                    }
+                  }
+              } ~
+              pathEnd {
+                detach() {
+                  complete {
+                    kb.summary
+                  }
                 }
               }
-            }
+          }
         }
-      }
+      } ~
+        pathEnd {
+          complete {
+            Owlery
+          }
+        }
     }
+
   }
 
 }

@@ -21,7 +21,7 @@ import org.semanticweb.elk.owlapi.ElkReasonerFactory
 import com.hp.hpl.jena.query.Query
 import com.hp.hpl.jena.query.QueryExecutionFactory
 
-object Owlery {
+object Owlery extends MarshallableOwlery {
 
   val kbs = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").map(configToKBConfig).toSet)
   private[this] val factory = OWLManager.getOWLDataFactory
