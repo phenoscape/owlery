@@ -5,7 +5,7 @@ organization  := "org.phenoscape"
 
 name          := "owlery"
 
-version       := "0.1"
+version       := "0.9"
 
 packageArchetype.java_server
 
@@ -42,7 +42,7 @@ libraryDependencies ++= {
     "org.specs2"             %%  "specs2-core"         % "2.3.7" % "test",
     "net.sourceforge.owlapi" %   "owlapi-distribution" % "3.5.0",
     "org.semanticweb.elk"    %   "elk-owlapi"          % "0.4.1",
-    "org.phenoscape"         %   "owlet"               % "1.1.2",
+    "org.phenoscape"         %   "owlet"               % "1.1.5",
     "commons-io"             %   "commons-io"          % "2.4",
     "org.apache.jena"        %   "apache-jena-libs"    % "2.11.2"
   )
