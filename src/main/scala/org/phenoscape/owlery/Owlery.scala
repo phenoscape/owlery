@@ -46,11 +46,15 @@ object Owlery extends MarshallableOwlery {
   }
 
   private[this] def importAll(manager: OWLOntologyManager): OWLOntology = {
-    val onts = manager.getOntologies()
-    val newOnt = manager.createOntology
-    for (ont <- onts)
-      manager.applyChange(new AddImport(newOnt, factory.getOWLImportsDeclaration(ont.getOntologyID.getOntologyIRI)))
-    newOnt
+    val onts = manager.getOntologies
+    if (onts.size == 1) {
+      onts.head
+    } else {
+      val newOnt = manager.createOntology
+      for (ont <- onts)
+        manager.applyChange(new AddImport(newOnt, factory.getOWLImportsDeclaration(ont.getOntologyID.getOntologyIRI)))
+      newOnt
+    }
   }
 
   private[this] def configToKBConfig(config: Config) = KnowledgebaseConfig(config.getString("name"), config.getString("location"), config.getString("reasoner"))
