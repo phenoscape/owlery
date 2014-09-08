@@ -23,9 +23,9 @@ import com.hp.hpl.jena.query.QueryExecutionFactory
 
 object Owlery extends MarshallableOwlery {
 
-  val kbs = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").map(configToKBConfig).toSet)
   private[this] val factory = OWLManager.getOWLDataFactory
   private[this] val loaderConfig = new OWLOntologyLoaderConfiguration().setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT)
+  val kbs = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").map(configToKBConfig).toSet)
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
 
@@ -35,8 +35,7 @@ object Owlery extends MarshallableOwlery {
     allImportedOntologies -- allLoadedOntologies
   }
 
-  private[this] def loadOntologyFromLocalFile(manager: OWLOntologyManager, file: File): Unit =
-    manager.loadOntologyFromOntologyDocument(new FileDocumentSource(file), loaderConfig)
+  private[this] def loadOntologyFromLocalFile(manager: OWLOntologyManager, file: File): Unit = manager.loadOntologyFromOntologyDocument(new FileDocumentSource(file), loaderConfig)
 
   private[this] def createOntologyFolderManager(): OWLOntologyManager = {
     val manager = OWLManager.createOWLOntologyManager
@@ -47,14 +46,11 @@ object Owlery extends MarshallableOwlery {
 
   private[this] def importAll(manager: OWLOntologyManager): OWLOntology = {
     val onts = manager.getOntologies
-    if (onts.size == 1) {
-      onts.head
-    } else {
-      val newOnt = manager.createOntology
-      for (ont <- onts)
-        manager.applyChange(new AddImport(newOnt, factory.getOWLImportsDeclaration(ont.getOntologyID.getOntologyIRI)))
-      newOnt
-    }
+    val newOnt = manager.createOntology
+    for (ont <- onts)
+      manager.applyChange(new AddImport(newOnt, factory.getOWLImportsDeclaration(ont.getOntologyID.getOntologyIRI)))
+    newOnt
+
   }
 
   private[this] def configToKBConfig(config: Config) = KnowledgebaseConfig(config.getString("name"), config.getString("location"), config.getString("reasoner"))
@@ -81,8 +77,10 @@ object Owlery extends MarshallableOwlery {
 
   private[this] def loadOntologyFromFolder(location: String): OWLOntology = {
     val manager = createOntologyFolderManager()
-    FileUtils.listFiles(new File(location), Array[String](), true).foreach(loadOntologyFromLocalFile(manager, _))
-    importAll(manager)
+    FileUtils.listFiles(new File(location), null, true).foreach(loadOntologyFromLocalFile(manager, _))
+    val onts = manager.getOntologies
+    if (onts.size == 1) onts.head
+    else importAll(manager)
   }
 
   private[this] case class KnowledgebaseConfig(name: String, location: String, reasoner: String)
