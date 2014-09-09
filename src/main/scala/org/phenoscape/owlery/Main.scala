@@ -26,6 +26,7 @@ import scala.collection.immutable.Map
 import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
 import spray.routing.Directive
 import spray.routing.RequestContext
+import org.semanticweb.owlapi.reasoner.InferenceType
 
 object Main extends App with SimpleRoutingApp {
 
@@ -70,7 +71,7 @@ object Main extends App with SimpleRoutingApp {
       subroute(ce.expression)
     }
 
-  def initializeReasoners() = Owlery.kbs.values.foreach(_.reasoner.isConsistent)
+  def initializeReasoners() = Owlery.kbs.values.par.foreach(_.reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY))
 
   initializeReasoners()
 
