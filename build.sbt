@@ -5,7 +5,7 @@ organization  := "org.phenoscape"
 
 name          := "owlery"
 
-version       := "0.9"
+version       := "0.9.1"
 
 packageArchetype.java_server
 
