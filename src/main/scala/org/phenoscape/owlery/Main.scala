@@ -71,7 +71,7 @@ object Main extends App with SimpleRoutingApp {
       subroute(ce.expression)
     }
 
-  def initializeReasoners() = Owlery.kbs.values.par.foreach(_.reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY))
+  def initializeReasoners() = Owlery.kbs.values.foreach(_.reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY))
 
   initializeReasoners()
 
