@@ -17,10 +17,15 @@ import spray.json._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.blocking
+import org.semanticweb.owlapi.apibinding.OWLManager
+import org.semanticweb.owlapi.model.IRI
+import java.util.UUID
+import org.semanticweb.owlapi.model.OWLClass
 
 case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   private lazy val owlet = new Owlet(this.reasoner)
+  private lazy val factory = OWLManager.getOWLDataFactory
   private val jsonldContext = Map(
     "@context" -> Map(
       "subClassOf" -> Map(
@@ -48,35 +53,40 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   def querySuperClasses(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
     blocking {
-      val results = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.map(_.getIRI.toString).toList)
+      val namedQuery = addQueryAsClass(expression)
+      val results = Map("subClassOf" -> reasoner.getSuperClasses(namedQuery, direct).getFlattened.map(_.getIRI.toString).toList)
       merge(toQueryObject(expression), results.toJson, jsonldContext)
     }
   }
 
   def querySubClasses(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
     blocking {
-      val results = Map("superClassOf" -> reasoner.getSubClasses(expression, direct).getFlattened.map(_.getIRI.toString).toList)
+      val namedQuery = addQueryAsClass(expression)
+      val results = Map("superClassOf" -> reasoner.getSubClasses(namedQuery, direct).getFlattened.map(_.getIRI.toString).toList)
       merge(toQueryObject(expression), results.toJson, jsonldContext)
     }
   }
 
   def queryInstances(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
     blocking {
-      val results = Map("hasInstance" -> reasoner.getInstances(expression, direct).getFlattened.map(_.getIRI.toString).toList)
+      val namedQuery = addQueryAsClass(expression)
+      val results = Map("hasInstance" -> reasoner.getInstances(namedQuery, direct).getFlattened.map(_.getIRI.toString).toList)
       merge(toQueryObject(expression), results.toJson, jsonldContext)
     }
   }
 
   def queryEquivalentClasses(expression: OWLClassExpression): Future[JsObject] = Future {
     blocking {
-      val results = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.filterNot(_ == expression).map(_.getIRI.toString).toList)
+      val namedQuery = addQueryAsClass(expression)
+      val results = Map("equivalentClass" -> reasoner.getEquivalentClasses(namedQuery).getEntities.filterNot(_ == expression).map(_.getIRI.toString).toList)
       merge(toQueryObject(expression), results.toJson, jsonldContext)
     }
   }
 
   def isSatisfiable(expression: OWLClassExpression): Future[JsObject] = Future {
     blocking {
-      val results = Map("isSatisfiable" -> reasoner.isSatisfiable(expression))
+      val namedQuery = addQueryAsClass(expression)
+      val results = Map("isSatisfiable" -> reasoner.isSatisfiable(namedQuery))
       merge(toQueryObject(expression), results.toJson, jsonldContext)
     }
   }
@@ -86,6 +96,19 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
       val results = Map("@type" -> reasoner.getTypes(individual, direct).getFlattened.map(_.getIRI.toString).toList)
       merge(toQueryObject(individual), results.toJson, jsonldContext)
     }
+  }
+
+  def addQueryAsClass(expression: OWLClassExpression): OWLClass = expression match {
+    case named: OWLClass => named
+    case anonymous => {
+      val ontology = reasoner.getRootOntology
+      val manager = ontology.getOWLOntologyManager
+      val namedQuery = factory.getOWLClass(IRI.create(s"http://example.org/${UUID.randomUUID.toString}"))
+      manager.addAxiom(ontology, factory.getOWLEquivalentClassesAxiom(namedQuery, expression))
+      reasoner.flush()
+      namedQuery
+    }
+
   }
 
   lazy val summary: Future[JsObject] = Future {
