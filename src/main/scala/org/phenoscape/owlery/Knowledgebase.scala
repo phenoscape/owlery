@@ -108,7 +108,6 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
       reasoner.flush()
       namedQuery
     }
-
   }
 
   lazy val summary: Future[JsObject] = Future {
