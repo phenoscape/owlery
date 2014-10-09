@@ -49,6 +49,8 @@ object Main extends App with SimpleRoutingApp {
 
   }
 
+  val NullQuery = new Query()
+
   case class PrefixedManchesterClassExpression(text: String, prefixes: Map[String, String]) {
 
     val parseResult = ManchesterSyntaxClassExpressionParser.parse(text, prefixes)
@@ -145,12 +147,14 @@ object Main extends App with SimpleRoutingApp {
                   }
                 } ~
                   post {
-                    parameter('query.as[Query]) { query =>
-                      complete {
-                        kb.performSPARQLQuery(query)
+                    parameter('query.as[Query].?(NullQuery)) { query =>
+                      query match {
+                        case NullQuery => handleWith(kb.performSPARQLQuery)
+                        case _ => complete {
+                          kb.performSPARQLQuery(query)
+                        }
                       }
-                    } ~
-                      handleWith(kb.performSPARQLQuery)
+                    }
                   }
               } ~
               path("expand") {
