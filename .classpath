@@ -1,22 +1,23 @@
 <classpath>
-  <classpathentry output="target/scala-2.10/classes" kind="src" path="src/main/scala"/>
-  <classpathentry output="target/scala-2.10/classes" kind="src" path="src/main/java"/>
-  <classpathentry output="target/scala-2.10/test-classes" kind="src" path="src/test/scala"/>
-  <classpathentry output="target/scala-2.10/test-classes" kind="src" path="src/test/java"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-can/bundles/spray-can-1.3.1.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-io/bundles/spray-io-1.3.1.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-util/bundles/spray-util-1.3.1.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-http/bundles/spray-http-1.3.1.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.parboiled/parboiled-scala_2.10/bundles/parboiled-scala_2.10-1.1.6.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.parboiled/parboiled-core/bundles/parboiled-core-1.1.6.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-routing/bundles/spray-routing-1.3.1.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-httpx/bundles/spray-httpx-1.3.1.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.jvnet.mimepull/mimepull/jars/mimepull-1.9.4.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/com.chuusai/shapeless_2.10/jars/shapeless_2.10-1.2.4.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-json_2.10/bundles/spray-json_2.10-1.2.6.jar"/>
+  <classpathentry output="target/scala-2.11/classes" kind="src" path="src/main/scala"/>
+  <classpathentry output="target/scala-2.11/classes" kind="src" path="src/main/java"/>
+  <classpathentry output="target/scala-2.11/test-classes" kind="src" path="src/test/scala"/>
+  <classpathentry output="target/scala-2.11/test-classes" kind="src" path="src/test/java"/>
   <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/com.typesafe.akka/akka-actor_2.10/jars/akka-actor_2.10-2.3.0.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/com.typesafe/config/bundles/config-1.2.0.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-can_2.11/bundles/spray-can_2.11-1.3.2.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-io_2.11/bundles/spray-io_2.11-1.3.2.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-util_2.11/bundles/spray-util_2.11-1.3.2.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-http_2.11/bundles/spray-http_2.11-1.3.2.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.parboiled/parboiled-scala_2.11/bundles/parboiled-scala_2.11-1.1.6.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.parboiled/parboiled-core/bundles/parboiled-core-1.1.6.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-routing_2.11/bundles/spray-routing_2.11-1.3.2.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-httpx_2.11/bundles/spray-httpx_2.11-1.3.2.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.scala-lang.modules/scala-xml_2.11/bundles/scala-xml_2.11-1.0.2.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.jvnet.mimepull/mimepull/jars/mimepull-1.9.4.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/com.chuusai/shapeless_2.11/jars/shapeless_2.11-1.2.4.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-json_2.11/bundles/spray-json_2.11-1.3.1.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/com.typesafe.akka/akka-actor_2.11/jars/akka-actor_2.11-2.3.6.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/com.typesafe/config/bundles/config-1.2.1.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/net.sourceforge.owlapi/owlapi-distribution/bundles/owlapi-distribution-3.5.0.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/net.sourceforge.owlapi/owlapi-apibinding/bundles/owlapi-apibinding-3.5.0.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/net.sourceforge.owlapi/owlapi-api/bundles/owlapi-api-3.5.0.jar"/>
@@ -36,8 +37,9 @@
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.semanticweb.elk/elk-util-logging/jars/elk-util-logging-0.4.1.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.semanticweb.elk/elk-util-common/jars/elk-util-common-0.4.1.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.semanticweb.elk/elk-util-io/jars/elk-util-io-0.4.1.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.phenoscape/owlet/jars/owlet-1.1.2.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.scalaz/scalaz-core_2.10/bundles/scalaz-core_2.10-7.1.0.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.phenoscape/owlet/jars/owlet-1.3.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.scalaz/scalaz-core_2.11/bundles/scalaz-core_2.11-7.1.1.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.11/bundles/scala-parser-combinators_2.11-1.0.2.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/log4j/log4j/bundles/log4j-1.2.17.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.apache.jena/jena-tdb/jars/jena-tdb-1.0.2.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.apache.jena/jena-arq/jars/jena-arq-2.11.2.jar"/>
@@ -57,13 +59,25 @@
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.apache.httpcomponents/httpclient-cache/jars/httpclient-cache-4.2.6.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.slf4j/jcl-over-slf4j/jars/jcl-over-slf4j-1.7.6.jar"/>
   <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-testkit/jars/spray-testkit-1.3.1.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/com.typesafe.akka/akka-testkit_2.10/jars/akka-testkit_2.10-2.3.0.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.specs2/specs2-core_2.10/jars/specs2-core_2.10-2.3.7.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.specs2/specs2-matcher_2.10/jars/specs2-matcher_2.10-2.3.7.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.specs2/specs2-common_2.10/jars/specs2-common_2.10-2.3.7.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.scalaz/scalaz-concurrent_2.10/bundles/scalaz-concurrent_2.10-7.0.5.jar"/>
-  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.scalaz/scalaz-effect_2.10/bundles/scalaz-effect_2.10-7.0.5.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/io.spray/spray-testkit_2.11/jars/spray-testkit_2.11-1.3.2.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/com.typesafe.akka/akka-testkit_2.11/jars/akka-testkit_2.11-2.3.6.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.specs2/specs2_2.11/jars/specs2_2.11-2.3.13.jar"/>
+  <classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_COMPILER_CONTAINER"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/junit/junit/jars/junit-4.11.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.hamcrest/hamcrest-core/jars/hamcrest-core-1.3.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.pegdown/pegdown/jars/pegdown-1.2.1.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.parboiled/parboiled-java/jars/parboiled-java-1.1.4.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.ow2.asm/asm/jars/asm-4.1.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.ow2.asm/asm-tree/jars/asm-tree-4.1.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.ow2.asm/asm-analysis/jars/asm-analysis-4.1.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.ow2.asm/asm-util/jars/asm-util-4.1.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.scalacheck/scalacheck_2.11/jars/scalacheck_2.11-1.11.3.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.scala-sbt/test-interface/jars/test-interface-1.0.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.mockito/mockito-core/jars/mockito-core-1.9.5.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.objenesis/objenesis/jars/objenesis-1.0.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.specs2/classycle/jars/classycle-1.4.3.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.scalaz/scalaz-concurrent_2.11/bundles/scalaz-concurrent_2.11-7.0.6.jar"/>
+  <classpathentry kind="lib" path="/Users/jim/.ivy2/cache/org.scalaz/scalaz-effect_2.11/bundles/scalaz-effect_2.11-7.0.6.jar"/>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
   <classpathentry kind="output" path="bin"/>
 </classpath>

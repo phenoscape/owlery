@@ -10,6 +10,6 @@ trait MarshallableOwlery {
 
   def kbs: Map[String, Knowledgebase]
 
-  implicit val OwleryMarshaller = Marshaller.delegate[MarshallableOwlery, JsArray](MediaTypes.`application/json`)(owlery => JsArray(owlery.kbs.keys.map(_.toJson).toList))
+  implicit val OwleryMarshaller = Marshaller.delegate[MarshallableOwlery, JsArray](MediaTypes.`application/json`)(owlery => JsArray(owlery.kbs.keys.map(_.toJson).toVector))
 
 }
