@@ -11,9 +11,9 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
 
 + Response 200 (application/json)
 
-```json
-["uberon", "pato", "bspo"]
-```
+    ```json
+    ["uberon", "pato", "bspo"]
+    ```
 
 ## Knowledgebase [/kbs/{kb}]
 ### Display Knowledgebase information and status [GET]
@@ -22,15 +22,15 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
     + kb (string, `uberon`) ... label for a knowledgebase loaded into Owlery
 + Response 200 (application/json)
 
-```json
-{
-  "label": "uberon",
-  "isConsistent": true,
-  "logicalAxiomsCount": 43938,
-  "@context": {
+    ```json
+    {
+    "label": "uberon",
+    "isConsistent": true,
+    "logicalAxiomsCount": 43938,
+    "@context": {
     "hasInstance": {
-      "@reverse": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
-      "@type": "@id"
+    "@reverse": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+    "@type": "@id"
     },
     "equivalentClass": {
       "@id": "http://www.w3.org/2002/07/owl#equivalentClass",
@@ -52,9 +52,9 @@ Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based 
       "@reverse": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
       "@type": "@id"
     }
-  }
-}
-```
+    }
+    }
+    ```
 
 # Group DL queries
         
