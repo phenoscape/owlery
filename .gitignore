@@ -10,3 +10,6 @@ test-output/
 .cache
 src/main/resources/application.conf
 .DS_Store
+/bin/
+.cache-main
+.settings
