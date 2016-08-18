@@ -13,7 +13,7 @@ packageDescription in Debian := "Owlery"
 
 maintainer in Debian := "James Balhoff"
 
-maintainer in Linux := "James Balhoff <balhoff@nescent.org>"
+maintainer in Linux := "James Balhoff <jbalhoff@rti.org>"
 
 packageSummary in Linux := "Owlery OWL server"
 
