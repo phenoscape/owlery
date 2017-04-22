@@ -82,7 +82,7 @@ object Main extends App with SimpleRoutingApp with CORSDirectives {
   val serverPort = conf.getInt("owlery.port")
   val serverHost = conf.getString("owlery.host")
 
-  if(serverHost = null || serverHost.isEmpty()) {
+  if(serverHost == null || serverHost.isEmpty()) {
     serverHost = "localhost"
   }
 
