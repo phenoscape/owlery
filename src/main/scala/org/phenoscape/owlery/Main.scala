@@ -80,7 +80,9 @@ object Main extends App with SimpleRoutingApp with CORSDirectives {
 
   val conf = ConfigFactory.load()
   val serverPort = conf.getInt("owlery.port")
-  val serverHost = conf.getInt("owlery.host")
+  val serverHost = conf.getString("owlery.host")
+
+  
 
   startServer(interface = serverHost, port = serverPort) {
 
