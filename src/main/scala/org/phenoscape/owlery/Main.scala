@@ -80,8 +80,13 @@ object Main extends App with SimpleRoutingApp with CORSDirectives {
 
   val conf = ConfigFactory.load()
   val serverPort = conf.getInt("owlery.port")
+  val serverHost = conf.getString("owlery.host")
 
-  startServer(interface = "localhost", port = serverPort) {
+  if(serverHost == null || serverHost.isEmpty()) {
+    val serverHostval :String = "localhost"
+  }
+
+  startServer(interface = serverHost, port = serverPort) {
 
     corsFilter(List("*")) {
       pathPrefix("kbs") {
