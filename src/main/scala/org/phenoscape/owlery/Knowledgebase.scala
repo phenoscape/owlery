@@ -1,22 +1,25 @@
 package org.phenoscape.owlery
 
 import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.blocking
+
 import org.phenoscape.owlet.Owlet
 import org.semanticweb.owlapi.model.OWLClassExpression
 import org.semanticweb.owlapi.model.OWLEntity
 import org.semanticweb.owlapi.model.OWLNamedIndividual
 import org.semanticweb.owlapi.model.OWLObject
 import org.semanticweb.owlapi.reasoner.OWLReasoner
+
 import com.hp.hpl.jena.query.Query
 import com.hp.hpl.jena.query.ResultSet
 import com.hp.hpl.jena.vocabulary.OWL2
 import com.hp.hpl.jena.vocabulary.RDF
 import com.hp.hpl.jena.vocabulary.RDFS
-import spray.json.DefaultJsonProtocol._
+
 import spray.json._
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.blocking
+import spray.json.DefaultJsonProtocol._
 
 case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 

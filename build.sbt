@@ -1,19 +1,16 @@
-import com.typesafe.sbt.SbtNativePackager._
-import NativePackagerKeys._
+enablePlugins(JavaServerAppPackaging)
 
 organization  := "org.phenoscape"
 
 name          := "owlery"
 
-version       := "0.10"
-
-packageArchetype.java_server
+version       := "0.11-SNAPSHOT"
 
 packageDescription in Debian := "Owlery"
 
 maintainer in Debian := "James Balhoff"
 
-maintainer in Linux := "James Balhoff <jbalhoff@rti.org>"
+maintainer in Linux := "James Balhoff <balhoff@renci.org>"
 
 packageSummary in Linux := "Owlery OWL server"
 
@@ -23,7 +20,7 @@ daemonUser in Linux := normalizedName.value // user which will execute the appli
 
 daemonGroup in Linux := normalizedName.value    // group which will execute the application
 
-scalaVersion  := "2.11.6"
+scalaVersion  := "2.11.11"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
@@ -35,12 +32,10 @@ libraryDependencies ++= {
   val akkaV = "2.3.6"
   val sprayV = "1.3.2"
   Seq(
-    "io.spray"               %%  "spray-can"           % sprayV,
-    "io.spray"               %%  "spray-routing"       % sprayV,
-    "io.spray"               %%  "spray-json"          % "1.3.1",
-    "io.spray"               %%  "spray-testkit"       % sprayV  % "test",
-    "com.typesafe.akka"      %%  "akka-actor"          % akkaV,
-    "com.typesafe.akka"      %%  "akka-testkit"        % akkaV   % "test",
+    "com.typesafe.akka"      %% "akka-http"            % "10.0.6",
+    "com.typesafe.akka"      %% "akka-http-spray-json" % "10.0.4",
+    "ch.megard"              %% "akka-http-cors"       % "0.2.1",
+    "io.spray"               %%  "spray-json"          % "1.3.3",
     "net.sourceforge.owlapi" %   "owlapi-distribution" % "3.5.0",
     "org.semanticweb.elk"    %   "elk-owlapi"          % "0.4.1",
     "org.phenoscape"         %   "owlet"               % "1.3",

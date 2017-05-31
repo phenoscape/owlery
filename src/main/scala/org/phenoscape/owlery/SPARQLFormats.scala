@@ -1,47 +1,40 @@
 package org.phenoscape.owlery
 
-import scala.collection.JavaConverters._
-
 import com.hp.hpl.jena.query.Query
 import com.hp.hpl.jena.query.QueryException
 import com.hp.hpl.jena.query.QueryFactory
 import com.hp.hpl.jena.query.ResultSet
 import com.hp.hpl.jena.query.ResultSetFormatter
 
-import spray.http._
-import spray.httpx.marshalling._
-import spray.httpx.unmarshalling._
+import akka.http.scaladsl.marshalling.Marshaller
+import akka.http.scaladsl.marshalling.ToEntityMarshaller
+import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.HttpCharsets
+import akka.http.scaladsl.model.MediaType
+import akka.http.scaladsl.unmarshalling.FromEntityUnmarshaller
+import akka.http.scaladsl.unmarshalling.Unmarshaller
 
 object SPARQLFormats {
 
-  val `application/sparql-results+xml` = MediaTypes.register(MediaType.custom("application/sparql-results+xml"))
-  val `application/sparql-query` = MediaTypes.register(MediaType.custom("application/sparql-query"))
-  val `application/ld+json` = MediaTypes.register(MediaType.custom("application/ld+json"))
+  val `application/sparql-results+xml` = MediaType.applicationWithFixedCharset("sparql-results+xml", HttpCharsets.`UTF-8`, "xml")
+  val `application/sparql-query` = MediaType.applicationWithFixedCharset("sparql-query", HttpCharsets.`UTF-8`, "rq", "sparql")
+  val `application/ld+json` = MediaType.applicationWithFixedCharset("ld+json", HttpCharsets.`UTF-8`, "jsonld")
 
-  implicit val SPARQLXMLMarshaller = Marshaller.delegate[ResultSet, String](`application/sparql-results+xml`, MediaTypes.`application/xml`, MediaTypes.`text/xml`)(ResultSetFormatter.asXMLString(_))
+  implicit val SPARQLXMLMarshaller: ToEntityMarshaller[ResultSet] = Marshaller.stringMarshaller(`application/sparql-results+xml`).compose(ResultSetFormatter.asXMLString(_))
 
-  val SPARQLQueryBodyUnmarshaller = Unmarshaller.delegate[String, Query](`application/sparql-query`)(QueryFactory.create(_))
+  val SPARQLQueryBodyUnmarshaller: FromEntityUnmarshaller[Query] = Unmarshaller.stringUnmarshaller.forContentTypes(`application/sparql-query`).map(QueryFactory.create)
 
-  val SPARQLQueryFormUnmarshaller = Unmarshaller.delegate[FormData, Query](MediaTypes.`application/x-www-form-urlencoded`) { data =>
+  val SPARQLQueryFormUnmarshaller: FromEntityUnmarshaller[Query] = Unmarshaller.defaultUrlEncodedFormDataUnmarshaller.map { data =>
     data.fields.filter(_._1 == "query").headOption match {
       case Some((param, queryText)) => QueryFactory.create(queryText)
-      case None => throw new QueryException
+      case None                     => throw new QueryException
     }
-
   }
 
-  implicit val SPARQLQueryUnmarshaller = Unmarshaller.oneOf(SPARQLQueryBodyUnmarshaller, SPARQLQueryFormUnmarshaller)
+  implicit val SPARQLQueryUnmarshaller = Unmarshaller.firstOf(SPARQLQueryBodyUnmarshaller, SPARQLQueryFormUnmarshaller)
 
-  implicit val SPARQLQueryMarshaller = Marshaller.delegate[Query, String](`application/sparql-query`, MediaTypes.`text/plain`)(_.toString)
-  
-  implicit object SPARQLQueryValue extends Deserializer[String, Query] {
+  implicit val SPARQLQueryMarshaller: ToEntityMarshaller[Query] = Marshaller.stringMarshaller(`application/sparql-query`).compose(_.toString)
 
-    def apply(text: String): Deserialized[Query] = try {
-      Right(QueryFactory.create(text))
-    } catch {
-      case e: QueryException => Left(MalformedContent(e.getMessage, e))
-    }
-
-  }
+  implicit val SPARQLQueryValue: Unmarshaller[String, Query] = Unmarshaller.strict(QueryFactory.create)
 
 }

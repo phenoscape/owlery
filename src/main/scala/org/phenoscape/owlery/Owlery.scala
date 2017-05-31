@@ -1,25 +1,24 @@
 package org.phenoscape.owlery
 
-import org.semanticweb.owlapi.apibinding.OWLManager
 import java.io.File
-import org.semanticweb.owlapi.model.UnloadableImportException
-import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration
-import org.semanticweb.owlapi.model.MissingImportHandlingStrategy
-import org.semanticweb.owlapi.io.FileDocumentSource
-import org.semanticweb.owlapi.model.IRI
-import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
-import org.semanticweb.owlapi.model.OWLOntologyManager
+
 import scala.collection.JavaConversions._
-import org.semanticweb.owlapi.model.OWLOntology
-import org.semanticweb.owlapi.model.AddImport
-import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
+
 import org.apache.commons.io.FileUtils
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigObject
-import com.typesafe.config.Config
 import org.semanticweb.elk.owlapi.ElkReasonerFactory
-import com.hp.hpl.jena.query.Query
-import com.hp.hpl.jena.query.QueryExecutionFactory
+import org.semanticweb.owlapi.apibinding.OWLManager
+import org.semanticweb.owlapi.io.FileDocumentSource
+import org.semanticweb.owlapi.model.AddImport
+import org.semanticweb.owlapi.model.IRI
+import org.semanticweb.owlapi.model.MissingImportHandlingStrategy
+import org.semanticweb.owlapi.model.OWLOntology
+import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
+import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration
+import org.semanticweb.owlapi.model.OWLOntologyManager
+import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
+
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 
 object Owlery extends MarshallableOwlery {
 
@@ -62,9 +61,9 @@ object Owlery extends MarshallableOwlery {
     else loadOntologyFromFolder(config.location)
     val reasoner = config.reasoner match {
       case "structural" => new StructuralReasonerFactory().createReasoner(ontology)
-      case "elk" => new ElkReasonerFactory().createReasoner(ontology)
-      case "hermit" => ???
-      case _ => new StructuralReasonerFactory().createReasoner(ontology)
+      case "elk"        => new ElkReasonerFactory().createReasoner(ontology)
+      case "hermit"     => ???
+      case _            => new StructuralReasonerFactory().createReasoner(ontology)
     }
     Knowledgebase(config.name, reasoner)
   }
