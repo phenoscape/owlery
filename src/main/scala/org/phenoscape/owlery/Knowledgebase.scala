@@ -5,18 +5,17 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.blocking
 
+import org.apache.jena.query.Query
+import org.apache.jena.query.ResultSet
+import org.apache.jena.vocabulary.OWL2
+import org.apache.jena.vocabulary.RDF
+import org.apache.jena.vocabulary.RDFS
 import org.phenoscape.owlet.Owlet
 import org.semanticweb.owlapi.model.OWLClassExpression
 import org.semanticweb.owlapi.model.OWLEntity
 import org.semanticweb.owlapi.model.OWLNamedIndividual
 import org.semanticweb.owlapi.model.OWLObject
 import org.semanticweb.owlapi.reasoner.OWLReasoner
-
-import com.hp.hpl.jena.query.Query
-import com.hp.hpl.jena.query.ResultSet
-import com.hp.hpl.jena.vocabulary.OWL2
-import com.hp.hpl.jena.vocabulary.RDF
-import com.hp.hpl.jena.vocabulary.RDFS
 
 import spray.json._
 import spray.json.DefaultJsonProtocol._

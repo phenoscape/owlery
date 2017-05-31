@@ -26,7 +26,7 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 javaOptions += "-Xmx10G"
 
-resolvers += "Phenoscape Maven repository" at "http://phenoscape.svn.sourceforge.net/svnroot/phenoscape/trunk/maven/repository"
+//resolvers += "Phenoscape Maven repository" at "http://phenoscape.svn.sourceforge.net/svnroot/phenoscape/trunk/maven/repository"
 
 libraryDependencies ++= {
   val akkaV = "2.3.6"
@@ -35,12 +35,12 @@ libraryDependencies ++= {
     "com.typesafe.akka"      %% "akka-http"            % "10.0.6",
     "com.typesafe.akka"      %% "akka-http-spray-json" % "10.0.4",
     "ch.megard"              %% "akka-http-cors"       % "0.2.1",
-    "io.spray"               %%  "spray-json"          % "1.3.3",
-    "net.sourceforge.owlapi" %   "owlapi-distribution" % "3.5.0",
-    "org.semanticweb.elk"    %   "elk-owlapi"          % "0.4.1",
-    "org.phenoscape"         %   "owlet"               % "1.3",
-    "commons-io"             %   "commons-io"          % "2.4",
-    "org.apache.jena"        %   "apache-jena-libs"    % "2.11.2"
+    "io.spray"               %% "spray-json"           % "1.3.3",
+    "net.sourceforge.owlapi" %  "owlapi-distribution"  % "4.3.1",
+    "org.semanticweb.elk"    %  "elk-owlapi"           % "0.4.3",
+    "org.phenoscape"         %% "owlet"                % "1.5",
+    "commons-io"             %  "commons-io"           % "2.4",
+    "org.apache.jena"        %  "apache-jena-libs"     % "3.2.0"
   )
 }
 

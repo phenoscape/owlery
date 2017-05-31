@@ -28,11 +28,14 @@ object Owlery extends MarshallableOwlery {
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
 
-  private[this] def checkForMissingImports(manager: OWLOntologyManager): Set[IRI] = {
-    val allImportedOntologies = manager.getOntologies.flatMap(_.getImportsDeclarations).map(_.getIRI).toSet
-    val allLoadedOntologies = manager.getOntologies.map(_.getOntologyID.getOntologyIRI).toSet
-    allImportedOntologies -- allLoadedOntologies
-  }
+  //  private[this] def checkForMissingImports(manager: OWLOntologyManager): Set[IRI] = {
+  //    val allImportedOntologies = manager.getOntologies().flatMap(_.getImportsDeclarations).map(_.getIRI).toSet
+  //    val allLoadedOntologies = for {
+  //      ont <- manager.getOntologies()
+  //      versionIRI <- Option(ont.getOntologyID.getOntologyIRI.get)
+  //    } yield versionIRI
+  //    allImportedOntologies -- allLoadedOntologies
+  //  }
 
   private[this] def loadOntologyFromLocalFile(manager: OWLOntologyManager, file: File): Unit = manager.loadOntologyFromOntologyDocument(new FileDocumentSource(file), loaderConfig)
 
@@ -44,10 +47,12 @@ object Owlery extends MarshallableOwlery {
   }
 
   private[this] def importAll(manager: OWLOntologyManager): OWLOntology = {
-    val onts = manager.getOntologies
+    val axioms = for {
+      ont <- manager.getOntologies()
+      axiom <- ont.getAxioms()
+    } yield axiom
     val newOnt = manager.createOntology
-    for (ont <- onts)
-      manager.applyChange(new AddImport(newOnt, factory.getOWLImportsDeclaration(ont.getOntologyID.getOntologyIRI)))
+    manager.addAxioms(newOnt, axioms)
     newOnt
   }
 
@@ -76,7 +81,7 @@ object Owlery extends MarshallableOwlery {
   private[this] def loadOntologyFromFolder(location: String): OWLOntology = {
     val manager = createOntologyFolderManager()
     FileUtils.listFiles(new File(location), null, true).foreach(loadOntologyFromLocalFile(manager, _))
-    val onts = manager.getOntologies
+    val onts = manager.getOntologies()
     if (onts.size == 1) onts.head
     else importAll(manager)
   }

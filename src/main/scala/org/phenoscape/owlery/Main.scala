@@ -10,7 +10,6 @@ import org.semanticweb.owlapi.model.IRI
 import org.semanticweb.owlapi.model.OWLClassExpression
 import org.semanticweb.owlapi.reasoner.InferenceType
 
-import com.hp.hpl.jena.query.Query
 import com.typesafe.config.ConfigFactory
 
 import akka.actor.ActorSystem
@@ -21,6 +20,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshaller
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import spray.json._
 import spray.json.DefaultJsonProtocol._
+import org.apache.jena.query.Query
 
 object Main extends HttpApp with App {
 
