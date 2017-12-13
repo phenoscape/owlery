@@ -8,6 +8,7 @@ spray.can.server {
 
 owlery {
     port = 8080
+    host = localhost
 	kbs = [
 		{
 			name = uberon
