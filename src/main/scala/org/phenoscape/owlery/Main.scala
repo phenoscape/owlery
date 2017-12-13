@@ -24,7 +24,6 @@ import org.apache.jena.query.Query
 
 object Main extends HttpApp with App {
 
-  //implicit val system = ActorSystem("owlery-system")
   val factory = OWLManager.getOWLDataFactory
 
   implicit val IRIUnmarshaller: Unmarshaller[String, IRI] = Unmarshaller.strict(IRI.create)
@@ -67,8 +66,6 @@ object Main extends HttpApp with App {
 
   val conf = ConfigFactory.load()
   val port = conf.getInt("owlery.port")
-
-  //  startServer(interface = "localhost", port = serverPort) {
 
   def route: Route = cors() {
     pathPrefix("kbs") {
