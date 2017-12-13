@@ -2,6 +2,10 @@ FROM openjdk:8-jdk
 
 LABEL maintainer="hilmar.lapp@duke.edu"
 
+# For which target within owlery to build? If empty, uses the latest
+# release. Otherwise, the branch, or tag, for which to build the container.
+ARG TARGET
+
 # Prevent error messages from debconf about non-interactive frontend
 ARG TERM=linux
 ARG DEBIAN_FRONTEND=noninteractive
@@ -32,8 +36,10 @@ RUN apt-get update -y && \
             sbt
 
 # Download and unpack owlery from the latest release on Github
-RUN curl -L -o /tmp/owlery.tar.gz \
-         $(curl -s https://api.github.com/repos/phenoscape/owlery/releases/latest | grep tarball_url | cut -d\" -f4) && \
+ADD get-tarball-url.sh /tmp/get-tarball-url.sh
+RUN echo "Building owlery from "$(sh /tmp/get-tarball-url.sh $TARGET) && \
+    curl -L -o /tmp/owlery.tar.gz \
+         $(sh /tmp/get-tarball-url.sh $TARGET) && \
     mkdir /tmp/owlery && \
     tar -z -x -v --strip-components 1 -C /tmp/owlery -f /tmp/owlery.tar.gz
 
@@ -47,7 +53,7 @@ RUN cd /tmp/owlery && \
     mv target/universal/stage /usr/share/owlery && \
     chmod a+x /usr/share/owlery/bin/owlery && \
     ln -s /usr/share/owlery/bin/owlery /usr/local/bin/owlery && \
-    rm -rf /tmp/owlery*
+    rm -rf /tmp/owlery* /tmp/get-tarball-url*
 
 # create the mount point for configuration files
 RUN mkdir /srv/conf
