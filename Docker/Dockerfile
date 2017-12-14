@@ -15,8 +15,8 @@ ARG OWLERY_USER=owlery
 ARG OWLERY_GROUP=owlery
 
 ADD create-user.sh /usr/local/bin/create-service-user
-RUN chmod ug+x /usr/local/bin/create-service-user && \
-    create-service-user $OWLERY_USER $OWLERY_GROUP
+RUN chmod ug+x /usr/local/bin/create-service-user
+RUN create-service-user $OWLERY_USER $OWLERY_GROUP
 
 # Install dependencies of sbt
 RUN apt-get update -y && \
