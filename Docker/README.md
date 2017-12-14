@@ -1,14 +1,21 @@
 # Docker container for Owlery
 
+[![Docker Hub Repository](https://img.shields.io/docker/automated/phenoscape/owlery.svg)](https://hub.docker.com/r/phenoscape/owlery/) [![Docker Hub Pulls](https://img.shields.io/docker/pulls/phenoscape/owlery.svg)](https://hub.docker.com/r/phenoscape/owlery/)
+
 This Docker container will automatically run the owlery service, exposed on
 port 8080 (map to a port suitable for you on the host).
 
 ## Runtime customization
 
 ### application.conf
-By defaut, the service will expect the `application.conf` file at `/srv/conf/application.conf`. Map the directory where you have your conf file to this path, or alternatively override the location on the `docker run` command line (append `-Dconfig.file=</path/to/application.conf>` after the image name).
+By defaut, the service will expect the `application.conf` file at `/srv/conf/application.conf`. Map the directory where you have your conf file to this path, or alternatively override the location on the `docker run` command line (append `-Dconfig.file=</path/to/application.conf>` after the image name; this must be a path _within_ the container).
+
+You can find an example `application.conf` file in [`src/main/resources/application.conf.example`](../src/main/resources/application.conf.example) (relative to the project root).
 
 Note that the `owlery.port` and `owlery.host` settings in your `application.conf` are irrelevant, because they are overridden in the entrypoint definition for the container.
+
+### Ontologies to be loaded
+The ontologies to be loaded are defined in `application.conf`, section `owlery.kbs` (see above for example), and can be configured to be loaded from a URL, or from a file. If you have an ontology in a file, map the file into the container at `/srv`.
 
 ### Java memory and other options
 Owlery will typically benefit from a fair amount of memory. The reasoner will load into and hold in memory all ontologies you configure. By default, Java is allowed up to 8GB of memory in the container.
