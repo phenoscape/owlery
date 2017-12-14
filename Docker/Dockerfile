@@ -6,17 +6,24 @@ LABEL maintainer="hilmar.lapp@duke.edu"
 # release. Otherwise, the branch, or tag, for which to build the container.
 ARG TARGET
 
+# name and Github repository
+ARG APPNAME=owlery
+ARG REPO=phenoscape/owlery
+
+# where to install within the container
+ARG APP_PREFIX=/usr/share/$APPNAME
+
 # Prevent error messages from debconf about non-interactive frontend
 ARG TERM=linux
 ARG DEBIAN_FRONTEND=noninteractive
 
 # create designated non-root system user and group
-ARG OWLERY_USER=owlery
-ARG OWLERY_GROUP=owlery
+ARG APP_USER=owlery
+ARG APP_GROUP=owlery
 
 ADD create-user.sh /usr/local/bin/create-service-user
 RUN chmod ug+x /usr/local/bin/create-service-user
-RUN create-service-user $OWLERY_USER $OWLERY_GROUP
+RUN create-service-user $APP_USER $APP_GROUP
 
 # Install dependencies of sbt
 RUN apt-get update -y && \
@@ -37,23 +44,23 @@ RUN apt-get update -y && \
 
 # Download and unpack owlery from the latest release on Github
 ADD get-tarball-url.sh /tmp/get-tarball-url.sh
-RUN echo "Building owlery from "$(sh /tmp/get-tarball-url.sh $TARGET) && \
-    curl -L -o /tmp/owlery.tar.gz \
-         $(sh /tmp/get-tarball-url.sh $TARGET) && \
-    mkdir /tmp/owlery && \
-    tar -z -x -v --strip-components 1 -C /tmp/owlery -f /tmp/owlery.tar.gz
+RUN echo "Building $APPNAME from "$(sh /tmp/get-tarball-url.sh $TARGET $REPO) && \
+    curl -L -o /tmp/$APPNAME.tar.gz \
+         $(sh /tmp/get-tarball-url.sh $TARGET $REPO) && \
+    mkdir /tmp/$APPNAME && \
+    tar -z -x -v --strip-components 1 -C /tmp/$APPNAME -f /tmp/$APPNAME.tar.gz
 
 # Build owlery (using sbt)
-RUN cd /tmp/owlery && \
+RUN cd /tmp/$APPNAME && \
     sbt stage
 
 # then install to /usr/share, adding a symlink to /usr/local/bin, and
 # end by cleaning up
-RUN cd /tmp/owlery && \
-    mv target/universal/stage /usr/share/owlery && \
-    chmod a+x /usr/share/owlery/bin/owlery && \
-    ln -s /usr/share/owlery/bin/owlery /usr/local/bin/owlery && \
-    rm -rf /tmp/owlery* /tmp/get-tarball-url*
+RUN cd /tmp/$APPNAME && \
+    mv target/universal/stage $APP_PREFIX && \
+    chmod a+x $APP_PREFIX/bin/$APPNAME && \
+    ln -s $APP_PREFIX/bin/$APPNAME /usr/local/bin/$APPNAME && \
+    rm -rf /tmp/$APPNAME* /tmp/get-tarball-url*
 
 # create the mount point for configuration files
 RUN mkdir /srv/conf
@@ -66,7 +73,7 @@ ENV JAVA_OPTS="-Xmx8G"
 EXPOSE 8080
 
 # run the service under a designated user rather than root
-USER $OWLERY_USER
+USER $APP_USER
 
 # by default, the application config file is expected at this location
 # (override on the docker run commandline by providing a trailing argument)
