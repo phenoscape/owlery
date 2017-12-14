@@ -1,7 +1,7 @@
 #!/bin/sh
 
-TARGET=$1
-REPO=$2
+REPO=$1
+TARGET=$2
 
 if [ -z $TARGET ] ; then
     echo $(curl -s https://api.github.com/repos/$REPO/releases/latest | grep tarball_url | cut -d\" -f4)
