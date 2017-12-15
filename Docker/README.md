@@ -32,7 +32,7 @@ You can change the memory available to Java, and other options, by setting the `
 
 Currently the following build arguments (`--build-arg` command line option to `docker build`) are supported:
 
-* `OWLERY_USER` and `OWLERY_GROUP`: designated user and group for running
+* `APP_USER` and `APP_GROUP`: designated user and group for running
   the owlery process within the container (default: `owlery`)
 * `TARGET`: the target to build, as the branch, tag, or release. By default,
   the _latest release_ is built (this may not be the latest _tag_). To build
