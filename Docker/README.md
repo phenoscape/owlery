@@ -5,6 +5,12 @@
 This Docker container will automatically run the owlery service, exposed on
 port 8080 (map to a port suitable for you on the host).
 
+## Available image tags
+The following tags are currently available from Docker Hub:
+* `latest`: The [latest release]. Note that because this tag is currently not rebuilt automatically whenever a new release is made, it may in actuality be behind the latest release.
+* `edge`: The `master` branch. Note the image available from Docker Hub is the last build from `master` that _succeeded_. (You can see the current [build status on Docker Hub] for each tag.)
+* Release tag name: The corresponding release tag.
+
 ## Runtime customization
 
 ### application.conf
@@ -33,3 +39,5 @@ Currently the following build arguments (`--build-arg` command line option to `d
   a specific branch or tag, set `TARGET` to the corresponding value (e.g.,
   `--build-arg TARGET=master` to build from the master branch).
 
+[latest release]: https://github.com/phenoscape/owlery/releases/latest
+[build status on Docker Hub]: https://hub.docker.com/r/phenoscape/owlery/builds/
