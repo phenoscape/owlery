@@ -26,11 +26,7 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 javaOptions += "-Xmx10G"
 
-//resolvers += "Phenoscape Maven repository" at "http://phenoscape.svn.sourceforge.net/svnroot/phenoscape/trunk/maven/repository"
-
 libraryDependencies ++= {
-  val akkaV = "2.3.6"
-  val sprayV = "1.3.2"
   Seq(
     "com.typesafe.akka"      %% "akka-http"            % "10.0.6",
     "com.typesafe.akka"      %% "akka-http-spray-json" % "10.0.4",
