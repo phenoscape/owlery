@@ -2,6 +2,7 @@ package org.phenoscape.owlery
 
 import scala.collection.immutable.Map
 
+import org.apache.jena.query.Query
 import org.phenoscape.owlery.Owlery.OwleryMarshaller
 import org.phenoscape.owlery.SPARQLFormats._
 import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
@@ -12,7 +13,6 @@ import org.semanticweb.owlapi.reasoner.InferenceType
 
 import com.typesafe.config.ConfigFactory
 
-import akka.actor.ActorSystem
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.sprayJsonMarshaller
 import akka.http.scaladsl.server.HttpApp
 import akka.http.scaladsl.server.Route
@@ -20,7 +20,6 @@ import akka.http.scaladsl.unmarshalling.Unmarshaller
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import spray.json._
 import spray.json.DefaultJsonProtocol._
-import org.apache.jena.query.Query
 
 object Main extends HttpApp with App {
 
