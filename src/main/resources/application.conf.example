@@ -2,8 +2,9 @@ akka {
   loglevel = INFO
 }
 
-spray.can.server {
-  request-timeout = 1s
+akka.http.server {
+  request-timeout = infinite
+  idle-timeout = infinite
 }
 
 owlery {
@@ -14,7 +15,6 @@ owlery {
 			name = uberon
 			location = "http://purl.obolibrary.org/obo/uberon/ext.owl"
 			reasoner = structural
-
 		},
 		{
 			name = phenoscape

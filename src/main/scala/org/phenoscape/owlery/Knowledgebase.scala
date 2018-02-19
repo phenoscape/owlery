@@ -1,22 +1,24 @@
 package org.phenoscape.owlery
 
 import scala.collection.JavaConversions._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.concurrent.blocking
+
+import org.apache.jena.query.Query
+import org.apache.jena.query.ResultSet
+import org.apache.jena.vocabulary.OWL2
+import org.apache.jena.vocabulary.RDF
+import org.apache.jena.vocabulary.RDFS
 import org.phenoscape.owlet.Owlet
 import org.semanticweb.owlapi.model.OWLClassExpression
 import org.semanticweb.owlapi.model.OWLEntity
 import org.semanticweb.owlapi.model.OWLNamedIndividual
 import org.semanticweb.owlapi.model.OWLObject
 import org.semanticweb.owlapi.reasoner.OWLReasoner
-import com.hp.hpl.jena.query.Query
-import com.hp.hpl.jena.query.ResultSet
-import com.hp.hpl.jena.vocabulary.OWL2
-import com.hp.hpl.jena.vocabulary.RDF
-import com.hp.hpl.jena.vocabulary.RDFS
-import spray.json.DefaultJsonProtocol._
+
 import spray.json._
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.blocking
+import spray.json.DefaultJsonProtocol._
 
 case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
@@ -44,58 +46,44 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   def performSPARQLQuery(query: Query): Future[ResultSet] = Future(blocking(owlet.performSPARQLQuery(query)))
 
-  def expandSPARQLQuery(query: Query): Future[Query] = Future(blocking(owlet.expandQuery(query)))
+  def expandSPARQLQuery(query: Query): Future[Query] = Future { owlet.expandQuery(query) }
 
   def querySuperClasses(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
-    blocking {
-      val results = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.map(_.getIRI.toString).toList)
-      merge(toQueryObject(expression), results.toJson, jsonldContext)
-    }
+    val results = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.map(_.getIRI.toString).toList)
+    merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
   def querySubClasses(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
-    blocking {
-      val results = Map("superClassOf" -> reasoner.getSubClasses(expression, direct).getFlattened.map(_.getIRI.toString).toList)
-      merge(toQueryObject(expression), results.toJson, jsonldContext)
-    }
+    val results = Map("superClassOf" -> reasoner.getSubClasses(expression, direct).getFlattened.map(_.getIRI.toString).toList)
+    merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
   def queryInstances(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
-    blocking {
-      val results = Map("hasInstance" -> reasoner.getInstances(expression, direct).getFlattened.map(_.getIRI.toString).toList)
-      merge(toQueryObject(expression), results.toJson, jsonldContext)
-    }
+    val results = Map("hasInstance" -> reasoner.getInstances(expression, direct).getFlattened.map(_.getIRI.toString).toList)
+    merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
   def queryEquivalentClasses(expression: OWLClassExpression): Future[JsObject] = Future {
-    blocking {
-      val results = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.filterNot(_ == expression).map(_.getIRI.toString).toList)
-      merge(toQueryObject(expression), results.toJson, jsonldContext)
-    }
+    val results = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.filterNot(_ == expression).map(_.getIRI.toString).toList)
+    merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
   def isSatisfiable(expression: OWLClassExpression): Future[JsObject] = Future {
-    blocking {
-      val results = Map("isSatisfiable" -> reasoner.isSatisfiable(expression))
-      merge(toQueryObject(expression), results.toJson, jsonldContext)
-    }
+    val results = Map("isSatisfiable" -> reasoner.isSatisfiable(expression))
+    merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
   def queryTypes(individual: OWLNamedIndividual, direct: Boolean): Future[JsObject] = Future {
-    blocking {
-      val results = Map("@type" -> reasoner.getTypes(individual, direct).getFlattened.map(_.getIRI.toString).toList)
-      merge(toQueryObject(individual), results.toJson, jsonldContext)
-    }
+    val results = Map("@type" -> reasoner.getTypes(individual, direct).getFlattened.map(_.getIRI.toString).toList)
+    merge(toQueryObject(individual), results.toJson, jsonldContext)
   }
 
   lazy val summary: Future[JsObject] = Future {
-    blocking {
-      val summaryObj = Map(
-        "label" -> name.toJson,
-        "isConsistent" -> reasoner.isConsistent.toJson,
-        "logicalAxiomsCount" -> reasoner.getRootOntology.getLogicalAxiomCount.toJson)
-      merge(summaryObj.toJson, jsonldContext)
-    }
+    val summaryObj = Map(
+      "label" -> name.toJson,
+      "isConsistent" -> reasoner.isConsistent.toJson,
+      "logicalAxiomsCount" -> reasoner.getRootOntology.getLogicalAxiomCount.toJson)
+    merge(summaryObj.toJson, jsonldContext)
   }
 
   private def toQueryObject(expression: OWLObject): JsObject = expression match {

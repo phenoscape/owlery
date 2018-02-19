@@ -1,52 +1,37 @@
 package org.phenoscape.owlery
 
-import scala.collection.JavaConversions._
-import scala.util.Right
+import scala.collection.immutable.Map
+
+import org.apache.jena.query.Query
+import org.phenoscape.owlery.Owlery.OwleryMarshaller
+import org.phenoscape.owlery.SPARQLFormats._
+import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
 import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.IRI
 import org.semanticweb.owlapi.model.OWLClassExpression
-import com.hp.hpl.jena.query.Query
-import com.hp.hpl.jena.query.QueryException
-import com.hp.hpl.jena.query.QueryFactory
-import akka.actor.ActorSystem
-import spray.http._
-import spray.httpx.unmarshalling._
-import spray.routing.Directive.pimpApply
-import spray.routing.SimpleRoutingApp
-import spray.routing.directives.ParamDefMagnet.apply
-import java.io.InputStreamReader
-import java.io.ByteArrayInputStream
-import org.phenoscape.owlery.SPARQLFormats._
-import org.phenoscape.owlery.OWLFormats._
+import org.semanticweb.owlapi.reasoner.InferenceType
+
 import com.typesafe.config.ConfigFactory
-import spray.httpx.SprayJsonSupport._
+
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.sprayJsonMarshaller
+import akka.http.scaladsl.server.HttpApp
+import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.unmarshalling.Unmarshaller
+import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import spray.json._
 import spray.json.DefaultJsonProtocol._
-import scala.collection.immutable.Map
-import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
-import spray.routing.Directive
-import spray.routing.RequestContext
-import org.semanticweb.owlapi.reasoner.InferenceType
-import scala.concurrent.ExecutionContext.Implicits.global
 
-object Main extends App with SimpleRoutingApp with CORSDirectives {
+object Main extends HttpApp with App {
 
-  implicit val system = ActorSystem("owlery-system")
   val factory = OWLManager.getOWLDataFactory
 
-  implicit object IRIValue extends Deserializer[String, IRI] {
+  implicit val IRIUnmarshaller: Unmarshaller[String, IRI] = Unmarshaller.strict(IRI.create)
 
-    def apply(text: String): Deserialized[IRI] = Right(IRI.create(text))
-
-  }
-
-  implicit object SimpleMapFromJSONString extends Deserializer[String, Map[String, String]] {
-
-    def apply(text: String): Deserialized[Map[String, String]] = text.parseJson match {
-      case o: JsObject => Right(o.fields.map { case (key, value) => key -> value.toString })
-      case _           => deserializationError("JSON object expected")
+  implicit val SimpleMapFromJSONString: Unmarshaller[String, Map[String, String]] = Unmarshaller.strict { text =>
+    text.parseJson match {
+      case o: JsObject => o.fields.map { case (key, value) => key -> value.toString }
+      case _           => throw new IllegalArgumentException(s"Not a valid JSON map: $text")
     }
-
   }
 
   val NullQuery = new Query()
@@ -67,9 +52,9 @@ object Main extends App with SimpleRoutingApp with CORSDirectives {
 
   }
 
-  val NoPrefixes = Map[String, String]()
+  val NoPrefixes = Map.empty[String, String]
 
-  def objectAndPrefixParametersToClass(subroute: OWLClassExpression => (RequestContext => Unit)): RequestContext => Unit =
+  def objectAndPrefixParametersToClass(subroute: OWLClassExpression => (Route)): Route =
     parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedManchesterClassExpression) { ce =>
       subroute(ce.expression)
     }
@@ -79,113 +64,113 @@ object Main extends App with SimpleRoutingApp with CORSDirectives {
   initializeReasoners()
 
   val conf = ConfigFactory.load()
-  val serverPort = conf.getInt("owlery.port")
+  val port = conf.getInt("owlery.port")
   val host = conf.getString("owlery.host")
 
-  startServer(interface = host, port = serverPort) {
-
-    corsFilter(List("*")) {
-      pathPrefix("kbs") {
-        pathPrefix(Segment) { kbName =>
-          Owlery.kb(kbName) match {
-            case None => reject
-            case Some(kb) => {
-              path("subclasses") {
+  def route: Route = cors() {
+    pathPrefix("kbs") {
+      pathPrefix(Segment) { kbName =>
+        Owlery.kb(kbName) match {
+          case None => reject
+          case Some(kb) => {
+            path("subclasses") {
+              objectAndPrefixParametersToClass { expression =>
+                parameters('direct.?(false)) { direct =>
+                  complete {
+                    kb.querySubClasses(expression, direct)
+                  }
+                }
+              }
+            } ~
+              path("superclasses") {
                 objectAndPrefixParametersToClass { expression =>
                   parameters('direct.?(false)) { direct =>
                     complete {
-                      kb.querySubClasses(expression, direct)
+                      kb.querySuperClasses(expression, direct)
                     }
                   }
                 }
               } ~
-                path("superclasses") {
-                  objectAndPrefixParametersToClass { expression =>
-                    parameters('direct.?(false)) { direct =>
-                      complete {
-                        kb.querySuperClasses(expression, direct)
-                      }
-                    }
-                  }
-                } ~
-                path("instances") {
-                  objectAndPrefixParametersToClass { expression =>
-                    parameters('direct.?(false)) { direct =>
-                      complete {
-                        kb.queryInstances(expression, direct)
-                      }
-                    }
-                  }
-                } ~
-                path("equivalent") {
-                  objectAndPrefixParametersToClass { expression =>
+              path("instances") {
+                objectAndPrefixParametersToClass { expression =>
+                  parameters('direct.?(false)) { direct =>
                     complete {
-                      kb.queryEquivalentClasses(expression)
+                      kb.queryInstances(expression, direct)
                     }
                   }
-                } ~
-                path("satisfiable") {
-                  objectAndPrefixParametersToClass { expression =>
+                }
+              } ~
+              path("equivalent") {
+                objectAndPrefixParametersToClass { expression =>
+                  complete {
+                    kb.queryEquivalentClasses(expression)
+                  }
+                }
+              } ~
+              path("satisfiable") {
+                objectAndPrefixParametersToClass { expression =>
+                  complete {
+                    kb.isSatisfiable(expression)
+                  }
+                }
+              } ~
+              path("types") {
+                parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
+                  parameters('direct.?(true)) { direct =>
                     complete {
-                      kb.isSatisfiable(expression)
+                      kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct)
+                    }
+                  }
+                }
+              } ~
+              path("sparql") {
+                get {
+                  parameter('query.as[Query]) { query =>
+                    complete {
+                      kb.performSPARQLQuery(query)
                     }
                   }
                 } ~
-                path("types") {
-                  parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
-                    parameters('direct.?(true)) { direct =>
-                      complete {
-                        kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct)
-                      }
-                    }
-                  }
-                } ~
-                path("sparql") {
-                  get {
-                    parameter('query.as[Query]) { query =>
-                      complete {
-                        kb.performSPARQLQuery(query)
-                      }
-                    }
-                  } ~
-                    post {
-                      parameter('query.as[Query].?(NullQuery)) { query =>
-                        query match {
-                          case NullQuery => handleWith(kb.performSPARQLQuery)
-                          case _ => complete {
-                            kb.performSPARQLQuery(query)
-                          }
+                  post {
+                    parameter('query.as[Query].?(NullQuery)) { query =>
+                      query match {
+                        case NullQuery => handleWith(kb.performSPARQLQuery)
+                        case _ => complete {
+                          kb.performSPARQLQuery(query)
                         }
                       }
                     }
-                } ~
-                path("expand") {
-                  get {
-                    parameter('query.as[Query]) { query =>
-                      complete {
-                        kb.expandSPARQLQuery(query)
-                      }
-                    }
-                  } ~
-                    post {
-                      handleWith(kb.expandSPARQLQuery)
-                    }
-                } ~
-                pathEnd {
-                  complete {
-                    kb.summary
                   }
+              } ~
+              path("expand") {
+                get {
+                  parameter('query.as[Query]) { query =>
+                    complete {
+                      kb.expandSPARQLQuery(query)
+                    }
+                  }
+                } ~
+                  post {
+                    handleWith(kb.expandSPARQLQuery)
+                  }
+              } ~
+              pathEnd {
+                complete {
+                  kb.summary
                 }
-            }
+              }
           }
-        } ~
-          pathEnd {
-            complete {
-              Owlery
-            }
+        }
+      } ~
+        pathEnd {
+          complete {
+            Owlery
           }
-      }
+        }
     }
   }
+
+  // Starting the server
+  Main.startServer(host, port)
 
 }

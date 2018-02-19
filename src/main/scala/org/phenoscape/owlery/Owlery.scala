@@ -1,25 +1,24 @@
 package org.phenoscape.owlery
 
-import org.semanticweb.owlapi.apibinding.OWLManager
 import java.io.File
-import org.semanticweb.owlapi.model.UnloadableImportException
-import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration
-import org.semanticweb.owlapi.model.MissingImportHandlingStrategy
-import org.semanticweb.owlapi.io.FileDocumentSource
-import org.semanticweb.owlapi.model.IRI
-import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
-import org.semanticweb.owlapi.model.OWLOntologyManager
+
 import scala.collection.JavaConversions._
-import org.semanticweb.owlapi.model.OWLOntology
-import org.semanticweb.owlapi.model.AddImport
-import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
+
 import org.apache.commons.io.FileUtils
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigObject
-import com.typesafe.config.Config
 import org.semanticweb.elk.owlapi.ElkReasonerFactory
-import com.hp.hpl.jena.query.Query
-import com.hp.hpl.jena.query.QueryExecutionFactory
+import org.semanticweb.owlapi.apibinding.OWLManager
+import org.semanticweb.owlapi.io.FileDocumentSource
+import org.semanticweb.owlapi.model.AddImport
+import org.semanticweb.owlapi.model.IRI
+import org.semanticweb.owlapi.model.MissingImportHandlingStrategy
+import org.semanticweb.owlapi.model.OWLOntology
+import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
+import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration
+import org.semanticweb.owlapi.model.OWLOntologyManager
+import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
+
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 
 object Owlery extends MarshallableOwlery {
 
@@ -29,11 +28,14 @@ object Owlery extends MarshallableOwlery {
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
 
-  private[this] def checkForMissingImports(manager: OWLOntologyManager): Set[IRI] = {
-    val allImportedOntologies = manager.getOntologies.flatMap(_.getImportsDeclarations).map(_.getIRI).toSet
-    val allLoadedOntologies = manager.getOntologies.map(_.getOntologyID.getOntologyIRI).toSet
-    allImportedOntologies -- allLoadedOntologies
-  }
+  //  private[this] def checkForMissingImports(manager: OWLOntologyManager): Set[IRI] = {
+  //    val allImportedOntologies = manager.getOntologies().flatMap(_.getImportsDeclarations).map(_.getIRI).toSet
+  //    val allLoadedOntologies = for {
+  //      ont <- manager.getOntologies()
+  //      versionIRI <- Option(ont.getOntologyID.getOntologyIRI.get)
+  //    } yield versionIRI
+  //    allImportedOntologies -- allLoadedOntologies
+  //  }
 
   private[this] def loadOntologyFromLocalFile(manager: OWLOntologyManager, file: File): Unit = manager.loadOntologyFromOntologyDocument(new FileDocumentSource(file), loaderConfig)
 
@@ -45,10 +47,12 @@ object Owlery extends MarshallableOwlery {
   }
 
   private[this] def importAll(manager: OWLOntologyManager): OWLOntology = {
-    val onts = manager.getOntologies
+    val axioms = for {
+      ont <- manager.getOntologies()
+      axiom <- ont.getAxioms()
+    } yield axiom
     val newOnt = manager.createOntology
-    for (ont <- onts)
-      manager.applyChange(new AddImport(newOnt, factory.getOWLImportsDeclaration(ont.getOntologyID.getOntologyIRI)))
+    manager.addAxioms(newOnt, axioms)
     newOnt
   }
 
@@ -62,9 +66,9 @@ object Owlery extends MarshallableOwlery {
     else loadOntologyFromFolder(config.location)
     val reasoner = config.reasoner match {
       case "structural" => new StructuralReasonerFactory().createReasoner(ontology)
-      case "elk" => new ElkReasonerFactory().createReasoner(ontology)
-      case "hermit" => ???
-      case _ => new StructuralReasonerFactory().createReasoner(ontology)
+      case "elk"        => new ElkReasonerFactory().createReasoner(ontology)
+      case "hermit"     => ???
+      case _            => new StructuralReasonerFactory().createReasoner(ontology)
     }
     Knowledgebase(config.name, reasoner)
   }
@@ -77,7 +81,7 @@ object Owlery extends MarshallableOwlery {
   private[this] def loadOntologyFromFolder(location: String): OWLOntology = {
     val manager = createOntologyFolderManager()
     FileUtils.listFiles(new File(location), null, true).foreach(loadOntologyFromLocalFile(manager, _))
-    val onts = manager.getOntologies
+    val onts = manager.getOntologies()
     if (onts.size == 1) onts.head
     else importAll(manager)
   }
