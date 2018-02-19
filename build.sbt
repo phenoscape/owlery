@@ -20,7 +20,7 @@ daemonUser in Linux := normalizedName.value // user which will execute the appli
 
 daemonGroup in Linux := normalizedName.value    // group which will execute the application
 
-scalaVersion  := "2.11.11"
+scalaVersion  := "2.12.4"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
@@ -38,7 +38,7 @@ libraryDependencies ++= {
     "io.spray"               %% "spray-json"           % "1.3.3",
     "net.sourceforge.owlapi" %  "owlapi-distribution"  % "4.3.1",
     "org.semanticweb.elk"    %  "elk-owlapi"           % "0.4.3",
-    "org.phenoscape"         %% "owlet"                % "1.5",
+    "org.phenoscape"         %% "owlet"                % "1.6",
     "commons-io"             %  "commons-io"           % "2.4",
     "org.apache.jena"        %  "apache-jena-libs"     % "3.2.0"
   )

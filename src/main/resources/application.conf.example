@@ -9,6 +9,7 @@ akka.http.server {
 
 owlery {
     port = 8080
+    host = localhost
 	kbs = [
 		{
 			name = uberon

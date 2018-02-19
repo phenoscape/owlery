@@ -66,6 +66,7 @@ object Main extends HttpApp with App {
 
   val conf = ConfigFactory.load()
   val port = conf.getInt("owlery.port")
+  val host = conf.getString("owlery.host")
 
   def route: Route = cors() {
     pathPrefix("kbs") {
@@ -171,6 +172,6 @@ object Main extends HttpApp with App {
   }
 
   // Starting the server
-  Main.startServer("localhost", port)
+  Main.startServer(host, port)
 
 }
