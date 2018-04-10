@@ -28,15 +28,17 @@ javaOptions += "-Xmx10G"
 
 libraryDependencies ++= {
   Seq(
-    "com.typesafe.akka"      %% "akka-http"            % "10.0.6",
-    "com.typesafe.akka"      %% "akka-http-spray-json" % "10.0.4",
-    "ch.megard"              %% "akka-http-cors"       % "0.2.1",
-    "io.spray"               %% "spray-json"           % "1.3.3",
-    "net.sourceforge.owlapi" %  "owlapi-distribution"  % "4.3.1",
-    "org.semanticweb.elk"    %  "elk-owlapi"           % "0.4.3",
-    "org.phenoscape"         %% "owlet"                % "1.6",
-    "commons-io"             %  "commons-io"           % "2.4",
-    "org.apache.jena"        %  "apache-jena-libs"     % "3.2.0"
+    "com.typesafe.akka"      %% "akka-http"              % "10.0.6",
+    "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.0.4",
+    "ch.megard"              %% "akka-http-cors"         % "0.2.1",
+    "io.spray"               %% "spray-json"             % "1.3.3",
+    "net.sourceforge.owlapi" %  "owlapi-distribution"    % "4.3.1",
+    "org.semanticweb.elk"    %  "elk-owlapi"             % "0.4.3",
+    "net.sourceforge.owlapi" %  "org.semanticweb.hermit" % "1.4.0.432",
+    "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
+    "org.phenoscape"         %% "owlet"                  % "1.6",
+    "commons-io"             %  "commons-io"             % "2.4",
+    "org.apache.jena"        %  "apache-jena-libs"       % "3.2.0"
   )
 }
 

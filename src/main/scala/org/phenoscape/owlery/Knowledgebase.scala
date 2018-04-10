@@ -81,6 +81,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   lazy val summary: Future[JsObject] = Future {
     val summaryObj = Map(
       "label" -> name.toJson,
+      //"reasoner" -> reasoner.getReasonerName.toJson, //FIXME currently HermiT returns null
       "isConsistent" -> reasoner.isConsistent.toJson,
       "logicalAxiomsCount" -> reasoner.getRootOntology.getLogicalAxiomCount.toJson)
     merge(summaryObj.toJson, jsonldContext)
