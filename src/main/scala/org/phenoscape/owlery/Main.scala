@@ -29,8 +29,11 @@ object Main extends HttpApp with App {
 
   implicit val SimpleMapFromJSONString: Unmarshaller[String, Map[String, String]] = Unmarshaller.strict { text =>
     text.parseJson match {
-      case o: JsObject => o.fields.map { case (key, value) => key -> value.toString }
-      case _           => throw new IllegalArgumentException(s"Not a valid JSON map: $text")
+      case o: JsObject => o.fields.map {
+        case (key, JsString(value)) => key -> value
+        case _                      => throw new IllegalArgumentException(s"Only string values are supported in JSON map: $text")
+      }
+      case _ => throw new IllegalArgumentException(s"Not a valid JSON map: $text")
     }
   }
 
