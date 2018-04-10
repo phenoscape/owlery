@@ -2,13 +2,12 @@ package org.phenoscape.owlery
 
 import java.io.File
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import org.apache.commons.io.FileUtils
 import org.semanticweb.elk.owlapi.ElkReasonerFactory
 import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.io.FileDocumentSource
-import org.semanticweb.owlapi.model.AddImport
 import org.semanticweb.owlapi.model.IRI
 import org.semanticweb.owlapi.model.MissingImportHandlingStrategy
 import org.semanticweb.owlapi.model.OWLOntology
@@ -24,7 +23,7 @@ object Owlery extends MarshallableOwlery {
 
   private[this] val factory = OWLManager.getOWLDataFactory
   private[this] val loaderConfig = new OWLOntologyLoaderConfiguration().setMissingImportHandlingStrategy(MissingImportHandlingStrategy.SILENT)
-  val kbs = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").map(configToKBConfig).toSet)
+  val kbs = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").asScala.map(configToKBConfig).toSet)
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
 
@@ -48,11 +47,11 @@ object Owlery extends MarshallableOwlery {
 
   private[this] def importAll(manager: OWLOntologyManager): OWLOntology = {
     val axioms = for {
-      ont <- manager.getOntologies()
-      axiom <- ont.getAxioms()
+      ont <- manager.getOntologies().asScala
+      axiom <- ont.getAxioms().asScala
     } yield axiom
     val newOnt = manager.createOntology
-    manager.addAxioms(newOnt, axioms)
+    manager.addAxioms(newOnt, axioms.asJava)
     newOnt
   }
 
@@ -80,8 +79,8 @@ object Owlery extends MarshallableOwlery {
 
   private[this] def loadOntologyFromFolder(location: String): OWLOntology = {
     val manager = createOntologyFolderManager()
-    FileUtils.listFiles(new File(location), null, true).foreach(loadOntologyFromLocalFile(manager, _))
-    val onts = manager.getOntologies()
+    FileUtils.listFiles(new File(location), null, true).asScala.foreach(loadOntologyFromLocalFile(manager, _))
+    val onts = manager.getOntologies().asScala
     if (onts.size == 1) onts.head
     else importAll(manager)
   }

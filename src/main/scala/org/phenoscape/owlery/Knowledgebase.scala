@@ -1,6 +1,6 @@
 package org.phenoscape.owlery
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.blocking
@@ -49,22 +49,22 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   def expandSPARQLQuery(query: Query): Future[Query] = Future { owlet.expandQuery(query) }
 
   def querySuperClasses(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
-    val results = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.map(_.getIRI.toString).toList)
+    val results = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.asScala.map(_.getIRI.toString).toList)
     merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
   def querySubClasses(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
-    val results = Map("superClassOf" -> reasoner.getSubClasses(expression, direct).getFlattened.map(_.getIRI.toString).toList)
+    val results = Map("superClassOf" -> reasoner.getSubClasses(expression, direct).getFlattened.asScala.map(_.getIRI.toString).toList)
     merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
   def queryInstances(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
-    val results = Map("hasInstance" -> reasoner.getInstances(expression, direct).getFlattened.map(_.getIRI.toString).toList)
+    val results = Map("hasInstance" -> reasoner.getInstances(expression, direct).getFlattened.asScala.map(_.getIRI.toString).toList)
     merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
   def queryEquivalentClasses(expression: OWLClassExpression): Future[JsObject] = Future {
-    val results = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.filterNot(_ == expression).map(_.getIRI.toString).toList)
+    val results = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala.filterNot(_ == expression).map(_.getIRI.toString).toList)
     merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
@@ -74,7 +74,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   }
 
   def queryTypes(individual: OWLNamedIndividual, direct: Boolean): Future[JsObject] = Future {
-    val results = Map("@type" -> reasoner.getTypes(individual, direct).getFlattened.map(_.getIRI.toString).toList)
+    val results = Map("@type" -> reasoner.getTypes(individual, direct).getFlattened.asScala.map(_.getIRI.toString).toList)
     merge(toQueryObject(individual), results.toJson, jsonldContext)
   }
 
