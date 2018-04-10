@@ -1,8 +1,7 @@
 package org.phenoscape.owlery
 
-import scala.collection.immutable.Map
-
 import org.apache.jena.query.Query
+import org.apache.jena.system.JenaSystem
 import org.phenoscape.owlery.Owlery.OwleryMarshaller
 import org.phenoscape.owlery.SPARQLFormats._
 import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
@@ -22,6 +21,8 @@ import spray.json._
 import spray.json.DefaultJsonProtocol._
 
 object Main extends HttpApp with App {
+  
+  JenaSystem.init()
 
   val factory = OWLManager.getOWLDataFactory
 
