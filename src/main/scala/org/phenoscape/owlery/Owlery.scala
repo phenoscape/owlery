@@ -30,23 +30,7 @@ object Owlery extends MarshallableOwlery {
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
 
-  //  private[this] def checkForMissingImports(manager: OWLOntologyManager): Set[IRI] = {
-  //    val allImportedOntologies = manager.getOntologies().flatMap(_.getImportsDeclarations).map(_.getIRI).toSet
-  //    val allLoadedOntologies = for {
-  //      ont <- manager.getOntologies()
-  //      versionIRI <- Option(ont.getOntologyID.getOntologyIRI.get)
-  //    } yield versionIRI
-  //    allImportedOntologies -- allLoadedOntologies
-  //  }
-
   private[this] def loadOntologyFromLocalFile(manager: OWLOntologyManager, file: File): Unit = manager.loadOntologyFromOntologyDocument(new FileDocumentSource(file), loaderConfig)
-
-  private[this] def createOntologyFolderManager(): OWLOntologyManager = {
-    val manager = OWLManager.createOWLOntologyManager
-    manager.clearIRIMappers()
-    manager.addIRIMapper(NullIRIMapper)
-    manager
-  }
 
   private[this] def importAll(manager: OWLOntologyManager): OWLOntology = {
     val axioms = for {
@@ -82,7 +66,7 @@ object Owlery extends MarshallableOwlery {
   }
 
   private[this] def loadOntologyFromFolder(location: String): OWLOntology = {
-    val manager = createOntologyFolderManager()
+    val manager = OWLManager.createOWLOntologyManager()
     FileUtils.listFiles(new File(location), null, true).asScala.foreach(loadOntologyFromLocalFile(manager, _))
     val onts = manager.getOntologies().asScala
     if (onts.size == 1) onts.head
