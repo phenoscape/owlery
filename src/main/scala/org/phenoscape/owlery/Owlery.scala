@@ -64,7 +64,7 @@ object Owlery extends MarshallableOwlery {
 
   private[this] def loadOntologyFromFolder(location: String): OWLOntology = {
     val manager = OWLManager.createOWLOntologyManager()
-    FileUtils.listFiles(new File(location), null, true).asScala.foreach(f => manager.loadOntologyFromOntologyDocument(new FileDocumentSource(f)))
+    FileUtils.listFiles(new File(location), null, true).asScala.foreach(f => manager.loadOntology(IRI.create(f)))
     val onts = manager.getOntologies().asScala
     if (onts.size == 1) onts.head
     else importAll(manager)
