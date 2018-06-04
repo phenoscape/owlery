@@ -48,14 +48,22 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   def expandSPARQLQuery(query: Query): Future[Query] = Future { owlet.expandQuery(query) }
 
-  def querySuperClasses(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
-    val results = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.asScala.map(_.getIRI.toString).toList)
-    merge(toQueryObject(expression), results.toJson, jsonldContext)
+  def querySuperClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean): Future[JsObject] = Future {
+    val superClasses = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.asScala.map(_.getIRI.toString).toList)
+    val json = merge(toQueryObject(expression), superClasses.toJson, jsonldContext)
+    if (includeEquivalent) {
+      val equivalents = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala.filterNot(_ == expression).map(_.getIRI.toString).toList)
+      merge(json, equivalents.toJson)
+    } else json
   }
 
-  def querySubClasses(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
-    val results = Map("superClassOf" -> reasoner.getSubClasses(expression, direct).getFlattened.asScala.map(_.getIRI.toString).toList)
-    merge(toQueryObject(expression), results.toJson, jsonldContext)
+  def querySubClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean): Future[JsObject] = Future {
+    val subClasses = Map("superClassOf" -> reasoner.getSubClasses(expression, direct).getFlattened.asScala.map(_.getIRI.toString).toList)
+    val json = merge(toQueryObject(expression), subClasses.toJson, jsonldContext)
+    if (includeEquivalent) {
+      val equivalents = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala.filterNot(_ == expression).map(_.getIRI.toString).toList)
+      merge(json, equivalents.toJson)
+    } else json
   }
 
   def queryInstances(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {

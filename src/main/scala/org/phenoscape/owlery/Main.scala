@@ -79,18 +79,18 @@ object Main extends HttpApp with App {
           case Some(kb) => {
             path("subclasses") {
               objectAndPrefixParametersToClass { expression =>
-                parameters('direct.?(false)) { direct =>
+                parameters('direct.?(false), 'includeEquivalent.?(false)) { (direct, includeEquivalent) =>
                   complete {
-                    kb.querySubClasses(expression, direct)
+                    kb.querySubClasses(expression, direct, includeEquivalent)
                   }
                 }
               }
             } ~
               path("superclasses") {
                 objectAndPrefixParametersToClass { expression =>
-                  parameters('direct.?(false)) { direct =>
+                  parameters('direct.?(false), 'includeEquivalent.?(false)) { (direct, includeEquivalent) =>
                     complete {
-                      kb.querySuperClasses(expression, direct)
+                      kb.querySuperClasses(expression, direct, includeEquivalent)
                     }
                   }
                 }
