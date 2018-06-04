@@ -21,7 +21,7 @@ import spray.json._
 import spray.json.DefaultJsonProtocol._
 
 object Main extends HttpApp with App {
-  
+
   JenaSystem.init()
 
   val factory = OWLManager.getOWLDataFactory
@@ -79,18 +79,18 @@ object Main extends HttpApp with App {
           case Some(kb) => {
             path("subclasses") {
               objectAndPrefixParametersToClass { expression =>
-                parameters('direct.?(false), 'includeEquivalent.?(false)) { (direct, includeEquivalent) =>
+                parameters('direct.?(false), 'includeEquivalent.?(false), 'includeNothing.?(false)) { (direct, includeEquivalent, includeNothing) =>
                   complete {
-                    kb.querySubClasses(expression, direct, includeEquivalent)
+                    kb.querySubClasses(expression, direct, includeEquivalent, includeNothing)
                   }
                 }
               }
             } ~
               path("superclasses") {
                 objectAndPrefixParametersToClass { expression =>
-                  parameters('direct.?(false), 'includeEquivalent.?(false)) { (direct, includeEquivalent) =>
+                  parameters('direct.?(false), 'includeEquivalent.?(false), 'includeThing.?(false)) { (direct, includeEquivalent, includeThing) =>
                     complete {
-                      kb.querySuperClasses(expression, direct, includeEquivalent)
+                      kb.querySuperClasses(expression, direct, includeEquivalent, includeThing)
                     }
                   }
                 }
@@ -120,9 +120,9 @@ object Main extends HttpApp with App {
               } ~
               path("types") {
                 parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
-                  parameters('direct.?(true)) { direct =>
+                  parameters('direct.?(true), 'includeThing.?(false)) { (direct, includeThing) =>
                     complete {
-                      kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct)
+                      kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct, includeThing)
                     }
                   }
                 }
