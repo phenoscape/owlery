@@ -29,22 +29,28 @@ object TestDLQueries extends TestSuite {
       "Include deprecated terms" - {
         kb.querySubClasses(MuscleOrgan, true, false, false, true).map { res =>
           res.fields("superClassOf") match {
-            case JsArray(values) => {
-              val strings = values.map { case JsString(v) => v }
+            case JsArray(values) =>
+              val strings = (values).map {
+                case JsString(v) => v
+                case _           => ???
+              }
               assert(strings.contains(SkeletalMuscleOrgan.getIRI.toString))
               assert(strings.contains(RespiratorySystemMuscle.getIRI.toString))
-            }
+            case _ => ???
           }
         }
 
         "Exclude deprecated terms" - {
           kb.querySubClasses(MuscleOrgan, true, false, false, false).map { res =>
             res.fields("superClassOf") match {
-              case JsArray(values) => {
-                val strings = values.map { case JsString(v) => v }
+              case JsArray(values) =>
+                val strings = values.map {
+                  case JsString(v) => v
+                  case _           => ???
+                }
                 assert(!strings.contains(SkeletalMuscleOrgan.getIRI.toString))
                 assert(strings.contains(RespiratorySystemMuscle.getIRI.toString))
-              }
+              case _ => ???
             }
           }
         }
@@ -53,24 +59,30 @@ object TestDLQueries extends TestSuite {
       "Include owlNothing" - {
         kb.querySubClasses(MuscleOrgan, false, false, true, true).map { res =>
           res.fields("superClassOf") match {
-            case JsArray(values) => {
-              val strings = values.map { case JsString(v) => v }
+            case JsArray(values) =>
+              val strings = values.map {
+                case JsString(v) => v
+                case _           => ???
+              }
               assert(strings.contains(SkeletalMuscleOrgan.getIRI.toString))
               assert(strings.contains(RespiratorySystemMuscle.getIRI.toString))
               assert(strings.contains(factory.getOWLNothing.getIRI.toString))
-            }
+            case _ => ???
           }
         }
 
         "not when conflicts with 'direct'" - {
           kb.querySubClasses(MuscleOrgan, true, false, true, true).map { res =>
             res.fields("superClassOf") match {
-              case JsArray(values) => {
-                val strings = values.map { case JsString(v) => v }
+              case JsArray(values) =>
+                val strings = values.map {
+                  case JsString(v) => v
+                  case _           => ???
+                }
                 assert(strings.contains(SkeletalMuscleOrgan.getIRI.toString))
                 assert(strings.contains(RespiratorySystemMuscle.getIRI.toString))
                 assert(!strings.contains(factory.getOWLNothing.getIRI.toString))
-              }
+              case _ => ???
             }
           }
         }
@@ -80,12 +92,15 @@ object TestDLQueries extends TestSuite {
       "Exclude owlNothing" - {
         kb.querySubClasses(MuscleOrgan, false, false, false, true).map { res =>
           res.fields("superClassOf") match {
-            case JsArray(values) => {
-              val strings = values.map { case JsString(v) => v }
+            case JsArray(values) =>
+              val strings = values.map {
+                case JsString(v) => v
+                case _           => ???
+              }
               assert(strings.contains(SkeletalMuscleOrgan.getIRI.toString))
               assert(strings.contains(RespiratorySystemMuscle.getIRI.toString))
               assert(!strings.contains(factory.getOWLNothing.getIRI.toString))
-            }
+            case _ => ???
           }
         }
       }
