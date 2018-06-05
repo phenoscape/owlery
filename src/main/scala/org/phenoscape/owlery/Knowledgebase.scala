@@ -53,14 +53,14 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   def querySuperClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean, includeThing: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
     val superClasses = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.asScala
-      .filterNot(!includeDeprecated && isDeprecated(_))
       .filterNot(!includeThing && _.isOWLThing)
+      .filterNot(!includeDeprecated && isDeprecated(_))
       .map(_.getIRI.toString).toList)
     val json = merge(toQueryObject(expression), superClasses.toJson, jsonldContext)
     if (includeEquivalent) {
       val equivalents = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala
-        .filterNot(!includeDeprecated && isDeprecated(_))
         .filterNot(_ == expression)
+        .filterNot(!includeDeprecated && isDeprecated(_))
         .map(_.getIRI.toString).toList)
       merge(json, equivalents.toJson)
     } else json
@@ -68,14 +68,14 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   def querySubClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean, includeNothing: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
     val subClasses = Map("superClassOf" -> reasoner.getSubClasses(expression, direct).getFlattened.asScala
-      .filterNot(!includeDeprecated && isDeprecated(_))
       .filterNot(!includeNothing && _.isOWLNothing)
+      .filterNot(!includeDeprecated && isDeprecated(_))
       .map(_.getIRI.toString).toList)
     val json = merge(toQueryObject(expression), subClasses.toJson, jsonldContext)
     if (includeEquivalent) {
       val equivalents = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala
-        .filterNot(!includeDeprecated && isDeprecated(_))
         .filterNot(_ == expression)
+        .filterNot(!includeDeprecated && isDeprecated(_))
         .map(_.getIRI.toString).toList)
       merge(json, equivalents.toJson)
     } else json
@@ -90,8 +90,8 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   def queryEquivalentClasses(expression: OWLClassExpression, includeDeprecated: Boolean): Future[JsObject] = Future {
     val results = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala
-      .filterNot(!includeDeprecated && isDeprecated(_))
       .filterNot(_ == expression)
+      .filterNot(!includeDeprecated && isDeprecated(_))
       .map(_.getIRI.toString).toList)
     merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
@@ -103,8 +103,8 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   def queryTypes(individual: OWLNamedIndividual, direct: Boolean, includeThing: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
     val results = Map("@type" -> reasoner.getTypes(individual, direct).getFlattened.asScala
-      .filterNot(!includeDeprecated && isDeprecated(_))
       .filterNot(!includeThing && _.isOWLThing)
+      .filterNot(!includeDeprecated && isDeprecated(_))
       .map(_.getIRI.toString).toList)
     merge(toQueryObject(individual), results.toJson, jsonldContext)
   }
