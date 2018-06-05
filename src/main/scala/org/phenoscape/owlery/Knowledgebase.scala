@@ -40,8 +40,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
         "@reverse" -> RDF.`type`.getURI,
         "@type" -> "@id"),
       "value" -> Map(
-        "@id" -> RDF.value.getURI,
-        "@type" -> "@id"),
+        "@id" -> RDF.value.getURI),
       "isSatisfiable" -> Map(
         "@id" -> Vocabulary.isSatisfiable,
         "@type" -> "http://www.w3.org/2001/XMLSchema#boolean"))).toJson
