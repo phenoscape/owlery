@@ -25,25 +25,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   private val factory = OWLManager.getOWLDataFactory
   private lazy val owlet = new Owlet(this.reasoner)
-  private val jsonldContext = Map(
-    "@context" -> Map(
-      "subClassOf" -> Map(
-        "@id" -> RDFS.subClassOf.getURI,
-        "@type" -> "@id"),
-      "superClassOf" -> Map(
-        "@reverse" -> RDFS.subClassOf.getURI,
-        "@type" -> "@id"),
-      "equivalentClass" -> Map(
-        "@id" -> OWL2.equivalentClass.getURI,
-        "@type" -> "@id"),
-      "hasInstance" -> Map(
-        "@reverse" -> RDF.`type`.getURI,
-        "@type" -> "@id"),
-      "value" -> Map(
-        "@id" -> RDF.value.getURI),
-      "isSatisfiable" -> Map(
-        "@id" -> Vocabulary.isSatisfiable,
-        "@type" -> "http://www.w3.org/2001/XMLSchema#boolean"))).toJson
+  private val jsonldContext = Map("@context" -> "https://raw.githubusercontent.com/phenoscape/owlery/master/context.jsonld").toJson
 
   def performSPARQLQuery(query: Query): Future[ResultSet] = Future { owlet.performSPARQLQuery(query) }
 
@@ -100,7 +82,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   }
 
   def queryTypes(individual: OWLNamedIndividual, direct: Boolean, includeThing: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
-    val results = Map("@type" -> reasoner.getTypes(individual, direct).getFlattened.asScala
+    val results = Map("type" -> reasoner.getTypes(individual, direct).getFlattened.asScala
       .filterNot(!includeThing && _.isOWLThing)
       .filterNot(!includeDeprecated && isDeprecated(_))
       .map(_.getIRI.toString).toList)
