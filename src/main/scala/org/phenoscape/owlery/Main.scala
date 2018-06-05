@@ -79,35 +79,37 @@ object Main extends HttpApp with App {
           case Some(kb) => {
             path("subclasses") {
               objectAndPrefixParametersToClass { expression =>
-                parameters('direct.?(false), 'includeEquivalent.?(false), 'includeNothing.?(false)) { (direct, includeEquivalent, includeNothing) =>
+                parameters('direct.?(false), 'includeEquivalent.?(false), 'includeNothing.?(false), 'includeDeprecated.?(true)) { (direct, includeEquivalent, includeNothing, includeDeprecated) =>
                   complete {
-                    kb.querySubClasses(expression, direct, includeEquivalent, includeNothing)
+                    kb.querySubClasses(expression, direct, includeEquivalent, includeNothing, includeDeprecated)
                   }
                 }
               }
             } ~
               path("superclasses") {
                 objectAndPrefixParametersToClass { expression =>
-                  parameters('direct.?(false), 'includeEquivalent.?(false), 'includeThing.?(false)) { (direct, includeEquivalent, includeThing) =>
+                  parameters('direct.?(false), 'includeEquivalent.?(false), 'includeThing.?(false), 'includeDeprecated.?(true)) { (direct, includeEquivalent, includeThing, includeDeprecated) =>
                     complete {
-                      kb.querySuperClasses(expression, direct, includeEquivalent, includeThing)
+                      kb.querySuperClasses(expression, direct, includeEquivalent, includeThing, includeDeprecated)
                     }
                   }
                 }
               } ~
               path("instances") {
                 objectAndPrefixParametersToClass { expression =>
-                  parameters('direct.?(false)) { direct =>
+                  parameters('direct.?(false), 'includeDeprecated.?(true)) { (direct, includeDeprecated) =>
                     complete {
-                      kb.queryInstances(expression, direct)
+                      kb.queryInstances(expression, direct, includeDeprecated)
                     }
                   }
                 }
               } ~
               path("equivalent") {
                 objectAndPrefixParametersToClass { expression =>
-                  complete {
-                    kb.queryEquivalentClasses(expression)
+                  parameters('includeDeprecated.?(true)) { includeDeprecated =>
+                    complete {
+                      kb.queryEquivalentClasses(expression, includeDeprecated)
+                    }
                   }
                 }
               } ~
@@ -120,9 +122,9 @@ object Main extends HttpApp with App {
               } ~
               path("types") {
                 parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
-                  parameters('direct.?(true), 'includeThing.?(false)) { (direct, includeThing) =>
+                  parameters('direct.?(true), 'includeThing.?(false), 'includeDeprecated.?(true)) { (direct, includeThing, includeDeprecated) =>
                     complete {
-                      kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct, includeThing)
+                      kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct, includeThing, includeDeprecated)
                     }
                   }
                 }

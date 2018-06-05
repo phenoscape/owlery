@@ -11,17 +11,20 @@ import org.apache.jena.vocabulary.OWL2
 import org.apache.jena.vocabulary.RDF
 import org.apache.jena.vocabulary.RDFS
 import org.phenoscape.owlet.Owlet
+import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.OWLClassExpression
 import org.semanticweb.owlapi.model.OWLEntity
 import org.semanticweb.owlapi.model.OWLNamedIndividual
 import org.semanticweb.owlapi.model.OWLObject
 import org.semanticweb.owlapi.reasoner.OWLReasoner
+import org.semanticweb.owlapi.search.EntitySearcher
 
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
 case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
+  private val factory = OWLManager.getOWLDataFactory
   private lazy val owlet = new Owlet(this.reasoner)
   private val jsonldContext = Map(
     "@context" -> Map(
@@ -48,31 +51,47 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   def expandSPARQLQuery(query: Query): Future[Query] = Future { owlet.expandQuery(query) }
 
-  def querySuperClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean, includeThing: Boolean): Future[JsObject] = Future {
-    val superClasses = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.asScala.filterNot(_.isOWLThing).map(_.getIRI.toString).toList)
+  def querySuperClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean, includeThing: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
+    val superClasses = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.asScala
+      .filter(deprecationFilter(_, includeDeprecated))
+      .filterNot(_.isOWLThing)
+      .map(_.getIRI.toString).toList)
     val json = merge(toQueryObject(expression), superClasses.toJson, jsonldContext)
     if (includeEquivalent) {
-      val equivalents = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala.filterNot(_ == expression).map(_.getIRI.toString).toList)
+      val equivalents = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala
+        .filter(deprecationFilter(_, includeDeprecated))
+        .filterNot(_ == expression)
+        .map(_.getIRI.toString).toList)
       merge(json, equivalents.toJson)
     } else json
   }
 
-  def querySubClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean, includeNothing: Boolean): Future[JsObject] = Future {
-    val subClasses = Map("superClassOf" -> reasoner.getSubClasses(expression, direct).getFlattened.asScala.filterNot(_.isOWLNothing).map(_.getIRI.toString).toList)
+  def querySubClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean, includeNothing: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
+    val subClasses = Map("superClassOf" -> reasoner.getSubClasses(expression, direct).getFlattened.asScala
+      .filter(deprecationFilter(_, includeDeprecated))
+      .filterNot(_.isOWLNothing).map(_.getIRI.toString).toList)
     val json = merge(toQueryObject(expression), subClasses.toJson, jsonldContext)
     if (includeEquivalent) {
-      val equivalents = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala.filterNot(_ == expression).map(_.getIRI.toString).toList)
+      val equivalents = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala
+        .filter(deprecationFilter(_, includeDeprecated))
+        .filterNot(_ == expression)
+        .map(_.getIRI.toString).toList)
       merge(json, equivalents.toJson)
     } else json
   }
 
-  def queryInstances(expression: OWLClassExpression, direct: Boolean): Future[JsObject] = Future {
-    val results = Map("hasInstance" -> reasoner.getInstances(expression, direct).getFlattened.asScala.map(_.getIRI.toString).toList)
+  def queryInstances(expression: OWLClassExpression, direct: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
+    val results = Map("hasInstance" -> reasoner.getInstances(expression, direct).getFlattened.asScala
+      .filter(deprecationFilter(_, includeDeprecated))
+      .map(_.getIRI.toString).toList)
     merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
-  def queryEquivalentClasses(expression: OWLClassExpression): Future[JsObject] = Future {
-    val results = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala.filterNot(_ == expression).map(_.getIRI.toString).toList)
+  def queryEquivalentClasses(expression: OWLClassExpression, includeDeprecated: Boolean): Future[JsObject] = Future {
+    val results = Map("equivalentClass" -> reasoner.getEquivalentClasses(expression).getEntities.asScala
+      .filter(deprecationFilter(_, includeDeprecated))
+      .filterNot(_ == expression)
+      .map(_.getIRI.toString).toList)
     merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
@@ -81,8 +100,11 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
     merge(toQueryObject(expression), results.toJson, jsonldContext)
   }
 
-  def queryTypes(individual: OWLNamedIndividual, direct: Boolean, includeThing: Boolean): Future[JsObject] = Future {
-    val results = Map("@type" -> reasoner.getTypes(individual, direct).getFlattened.asScala.filterNot(_.isOWLThing).map(_.getIRI.toString).toList)
+  def queryTypes(individual: OWLNamedIndividual, direct: Boolean, includeThing: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
+    val results = Map("@type" -> reasoner.getTypes(individual, direct).getFlattened.asScala
+      .filter(deprecationFilter(_, includeDeprecated))
+      .filterNot(_.isOWLThing)
+      .map(_.getIRI.toString).toList)
     merge(toQueryObject(individual), results.toJson, jsonldContext)
   }
 
@@ -105,5 +127,14 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   private def merge(jsonObjects: JsValue*): JsObject = {
     JsObject(jsonObjects.flatMap(_.asInstanceOf[JsObject].fields).toMap) //TODO do this without casting
   }
+
+  private def deprecationFilter(entity: OWLEntity, include: Boolean): Boolean = if (include) true else !isDeprecated(entity)
+
+  private def isDeprecated(entity: OWLEntity): Boolean =
+    reasoner.getRootOntology.getImportsClosure.asScala.exists { o =>
+      EntitySearcher.getAnnotations(entity, o, factory.getOWLDeprecated).asScala.exists { v =>
+        Option(v.getValue.asLiteral.orNull).exists(l => l.isBoolean && l.parseBoolean)
+      }
+    }
 
 }
