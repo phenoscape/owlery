@@ -1,0 +1,28 @@
+{
+  "@context": {
+    "equivalentClass": {
+      "@id": "http://www.w3.org/2002/07/owl#equivalentClass",
+      "@type": "@id"
+    },
+    "subClassOf": {
+      "@id": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "@type": "@id"
+    },
+    "superClassOf": {
+      "@reverse": "http://www.w3.org/2000/01/rdf-schema#subClassOf",
+      "@type": "@id"
+    },
+    "type": "@type",
+    "hasInstance": {
+      "@reverse": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type",
+      "@type": "@id"
+    },
+    "isSatisfiable": {
+      "@id": "http://purl.org/phenoscape/owlery.owl#isSatisfiable",
+      "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+    },
+    "value": {
+      "@id": "http://www.w3.org/1999/02/22-rdf-syntax-ns#value"
+    }
+  }
+}
