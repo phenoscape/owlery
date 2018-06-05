@@ -3,7 +3,6 @@ package org.phenoscape.owlery
 import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.concurrent.blocking
 
 import org.apache.jena.query.Query
 import org.apache.jena.query.ResultSet
@@ -47,7 +46,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
         "@id" -> Vocabulary.isSatisfiable,
         "@type" -> "http://www.w3.org/2001/XMLSchema#boolean"))).toJson
 
-  def performSPARQLQuery(query: Query): Future[ResultSet] = Future(blocking(owlet.performSPARQLQuery(query)))
+  def performSPARQLQuery(query: Query): Future[ResultSet] = Future { owlet.performSPARQLQuery(query) }
 
   def expandSPARQLQuery(query: Query): Future[Query] = Future { owlet.expandQuery(query) }
 
