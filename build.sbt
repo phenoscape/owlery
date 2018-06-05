@@ -20,11 +20,13 @@ daemonUser in Linux := normalizedName.value // user which will execute the appli
 
 daemonGroup in Linux := normalizedName.value    // group which will execute the application
 
-scalaVersion  := "2.12.5"
+scalaVersion  := "2.12.6"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 javaOptions += "-Xmx10G"
+
+testFrameworks += new TestFramework("utest.runner.Framework")
 
 libraryDependencies ++= {
   Seq(
@@ -38,7 +40,8 @@ libraryDependencies ++= {
     "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
     "org.phenoscape"         %% "owlet"                  % "1.6.1",
     "commons-io"             %  "commons-io"             % "2.4",
-    "org.apache.jena"        %  "apache-jena-libs"       % "3.2.0"
+    "org.apache.jena"        %  "apache-jena-libs"       % "3.2.0",
+    "com.lihaoyi"            %% "utest"                  % "0.5.3" % Test
   )
 }
 
