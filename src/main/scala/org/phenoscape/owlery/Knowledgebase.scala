@@ -25,7 +25,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   private val factory = OWLManager.getOWLDataFactory
   private lazy val owlet = new Owlet(this.reasoner)
-  private val jsonldContext = Map("@context" -> "https://raw.githubusercontent.com/phenoscape/owlery/master/context.jsonld").toJson
+  private val jsonldContext = Map("@context" -> "https://owlery.phenoscape.org/json/context.jsonld").toJson
 
   def performSPARQLQuery(query: Query): Future[ResultSet] = Future { owlet.performSPARQLQuery(query) }
 
