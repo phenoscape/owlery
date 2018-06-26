@@ -30,10 +30,13 @@ testFrameworks += new TestFramework("utest.runner.Framework")
 
 libraryDependencies ++= {
   Seq(
-    "com.typesafe.akka"      %% "akka-http"              % "10.0.6",
-    "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.0.4",
-    "ch.megard"              %% "akka-http-cors"         % "0.2.1",
-    "io.spray"               %% "spray-json"             % "1.3.3",
+    "com.typesafe.akka"      %% "akka-stream"            % "2.5.13",
+    "com.typesafe.akka"      %% "akka-actor"             % "2.5.13",
+    "com.typesafe.akka"      %% "akka-slf4j"             % "2.5.13",
+    "com.typesafe.akka"      %% "akka-http"              % "10.1.3",
+    "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.1.3",
+    "ch.megard"              %% "akka-http-cors"         % "0.3.0",
+    "io.spray"               %% "spray-json"             % "1.3.4",
     "net.sourceforge.owlapi" %  "owlapi-distribution"    % "4.5.2",
     "org.semanticweb.elk"    %  "elk-owlapi"             % "0.4.3",
     "net.sourceforge.owlapi" %  "org.semanticweb.hermit" % "1.4.0.432",

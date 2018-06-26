@@ -71,7 +71,7 @@ object Main extends HttpApp with App {
   val port = conf.getInt("owlery.port")
   val host = conf.getString("owlery.host")
 
-  def route: Route = cors() {
+  def routes: Route = cors() {
     pathPrefix("kbs") {
       pathPrefix(Segment) { kbName =>
         Owlery.kb(kbName) match {
