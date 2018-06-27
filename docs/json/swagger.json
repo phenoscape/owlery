@@ -1,7 +1,7 @@
 {
   "openapi" : "3.0.0",
   "servers" : [ {
-    "url" : "http://kb.phenoscape.org/owlery"
+    "url" : "https://kb.phenoscape.org/owlery"
   } ],
   "info" : {
     "description" : "Owlery provides a web API for an [OWL API](http://owlapi.sourceforge.net)-based reasoner containing a configurable set of ontologies (a \"knowledgebase\"). ",
