@@ -2,30 +2,20 @@ package org.phenoscape.owlery
 
 import java.io.File
 
-import scala.collection.JavaConverters._
-
+import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.io.FileUtils
 import org.semanticweb.HermiT.ReasonerFactory
 import org.semanticweb.elk.owlapi.ElkReasonerFactory
 import org.semanticweb.owlapi.apibinding.OWLManager
-import org.semanticweb.owlapi.io.FileDocumentSource
-import org.semanticweb.owlapi.model.IRI
-import org.semanticweb.owlapi.model.MissingImportHandlingStrategy
-import org.semanticweb.owlapi.model.OWLOntology
-import org.semanticweb.owlapi.model.OWLOntologyIRIMapper
-import org.semanticweb.owlapi.model.OWLOntologyLoaderConfiguration
-import org.semanticweb.owlapi.model.OWLOntologyManager
+import org.semanticweb.owlapi.model.{IRI, OWLOntology, OWLOntologyManager}
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
-
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-
 import uk.ac.manchester.cs.jfact.JFactFactory
+
+import scala.collection.JavaConverters._
 
 object Owlery extends MarshallableOwlery {
 
-  private[this] val factory = OWLManager.getOWLDataFactory
-  val kbs = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").asScala.map(configToKBConfig).toSet)
+  val kbs: Map[String, Knowledgebase] = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").asScala.map(configToKBConfig).toSet)
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
 
@@ -71,11 +61,5 @@ object Owlery extends MarshallableOwlery {
   }
 
   private[this] case class KnowledgebaseConfig(name: String, location: String, reasoner: String)
-
-  private[this] object NullIRIMapper extends OWLOntologyIRIMapper {
-
-    override def getDocumentIRI(iri: IRI): IRI = null
-
-  }
 
 }

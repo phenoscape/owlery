@@ -34,7 +34,7 @@ object Main extends HttpApp with App {
         case (key, JsString(value)) => key -> value
         case _                      => throw new IllegalArgumentException(s"Only string values are supported in JSON map: $text")
       }
-      case _ => throw new IllegalArgumentException(s"Not a valid JSON map: $text")
+      case _           => throw new IllegalArgumentException(s"Not a valid JSON map: $text")
     }
   }
 
@@ -42,28 +42,28 @@ object Main extends HttpApp with App {
 
   case class PrefixedManchesterClassExpression(text: String, prefixes: Map[String, String]) {
 
-    val parseResult = ManchesterSyntaxClassExpressionParser.parse(text, prefixes)
+    private val parseResult = ManchesterSyntaxClassExpressionParser.parse(text, prefixes)
     require(parseResult.isSuccess, parseResult.swap.getOrElse("Error parsing class expression"))
-    val expression = parseResult.toOption.get
+    val expression: OWLClassExpression = parseResult.toOption.get
 
   }
 
   case class PrefixedIndividualIRI(text: String, prefixes: Map[String, String]) {
 
-    val parseResult = ManchesterSyntaxClassExpressionParser.parseIRI(text, prefixes)
+    private val parseResult = ManchesterSyntaxClassExpressionParser.parseIRI(text, prefixes)
     require(parseResult.isSuccess, parseResult.swap.getOrElse("Error parsing individual IRI"))
-    val iri = parseResult.toOption.get
+    val iri: IRI = parseResult.toOption.get
 
   }
 
   val NoPrefixes = Map.empty[String, String]
 
-  def objectAndPrefixParametersToClass(subroute: OWLClassExpression => (Route)): Route =
+  def objectAndPrefixParametersToClass(subroute: OWLClassExpression => Route): Route =
     parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedManchesterClassExpression) { ce =>
       subroute(ce.expression)
     }
 
-  def initializeReasoners() = Owlery.kbs.values.foreach(_.reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY))
+  def initializeReasoners(): Unit = Owlery.kbs.values.foreach(_.reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY))
 
   initializeReasoners()
 
@@ -75,8 +75,8 @@ object Main extends HttpApp with App {
     pathPrefix("kbs") {
       pathPrefix(Segment) { kbName =>
         Owlery.kb(kbName) match {
-          case None => reject
-          case Some(kb) => {
+          case None     => reject
+          case Some(kb) =>
             path("subclasses") {
               objectAndPrefixParametersToClass { expression =>
                 parameters('direct.?(false), 'includeEquivalent.?(false), 'includeNothing.?(false), 'includeDeprecated.?(true)) { (direct, includeEquivalent, includeNothing, includeDeprecated) =>
@@ -138,12 +138,10 @@ object Main extends HttpApp with App {
                   }
                 } ~
                   post {
-                    parameter('query.as[Query].?(NullQuery)) { query =>
-                      query match {
-                        case NullQuery => handleWith(kb.performSPARQLQuery)
-                        case _ => complete {
-                          kb.performSPARQLQuery(query)
-                        }
+                    parameter('query.as[Query].?(NullQuery)) {
+                      case NullQuery => handleWith(kb.performSPARQLQuery)
+                      case query     => complete {
+                        kb.performSPARQLQuery(query)
                       }
                     }
                   }
@@ -165,7 +163,6 @@ object Main extends HttpApp with App {
                   kb.summary
                 }
               }
-          }
         }
       } ~
         pathEnd {
