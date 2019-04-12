@@ -5,6 +5,7 @@ import java.util.UUID
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.io.FileUtils
+import org.obolibrary.robot.CatalogXmlIRIMapper
 import org.semanticweb.HermiT.ReasonerFactory
 import org.semanticweb.elk.owlapi.ElkReasonerFactory
 import org.semanticweb.owlapi.apibinding.OWLManager
@@ -36,14 +37,21 @@ object Owlery extends MarshallableOwlery {
     newOnt
   }
 
-  private[this] def configToKBConfig(config: Config) = KnowledgebaseConfig(config.getString("name"), config.getString("location"), config.getString("reasoner"))
+  private[this] def configToKBConfig(config: Config) = KnowledgebaseConfig(
+    config.getString("name"),
+    config.getString("location"),
+    config.getString("reasoner"),
+    if (config.hasPath("catalog")) Some(config.getString("catalog")) else None)
 
   private[this] def loadKnowledgebases(configs: Set[KnowledgebaseConfig]): Map[String, Knowledgebase] =
     configs.map(loadKnowledgebase).map(kb => kb.name -> kb).toMap
 
   private[this] def loadKnowledgebase(config: KnowledgebaseConfig): Knowledgebase = {
-    val ontology = if (config.location.startsWith("http")) loadOntologyFromWeb(config.location)
-    else loadOntologyFromFolder(config.location)
+    println(config.catalogLocation)
+    val manager = OWLManager.createConcurrentOWLOntologyManager()
+    config.catalogLocation.foreach(c => manager.addIRIMapper(new CatalogXmlIRIMapper(new File(c))))
+    val ontology = if (config.location.startsWith("http")) manager.loadOntology(IRI.create(config.location))
+    else loadOntologyFromFolder(config.location, manager)
     val reasoner = config.reasoner.toLowerCase match {
       case "structural" => new StructuralReasonerFactory().createReasoner(ontology)
       case "elk"        => new ElkReasonerFactory().createReasoner(ontology)
@@ -54,13 +62,7 @@ object Owlery extends MarshallableOwlery {
     Knowledgebase(config.name, reasoner)
   }
 
-  private[this] def loadOntologyFromWeb(location: String): OWLOntology = {
-    val manager = OWLManager.createConcurrentOWLOntologyManager()
-    manager.loadOntology(IRI.create(location))
-  }
-
-  private[this] def loadOntologyFromFolder(location: String): OWLOntology = {
-    val manager = OWLManager.createConcurrentOWLOntologyManager()
+  private[this] def loadOntologyFromFolder(location: String, manager: OWLOntologyManager): OWLOntology = {
     val fileOrDir = new File(location)
     val files = if (fileOrDir.isDirectory) FileUtils.listFiles(fileOrDir, null, true).asScala else List(fileOrDir)
     val loadedOnts = files.map(f => manager.loadOntology(IRI.create(f))).toSet
@@ -68,6 +70,6 @@ object Owlery extends MarshallableOwlery {
     else importAll(manager, loadedOnts)
   }
 
-  private[this] case class KnowledgebaseConfig(name: String, location: String, reasoner: String)
+  private[this] case class KnowledgebaseConfig(name: String, location: String, reasoner: String, catalogLocation: Option[String])
 
 }
