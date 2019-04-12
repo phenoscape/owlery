@@ -47,7 +47,6 @@ object Owlery extends MarshallableOwlery {
     configs.map(loadKnowledgebase).map(kb => kb.name -> kb).toMap
 
   private[this] def loadKnowledgebase(config: KnowledgebaseConfig): Knowledgebase = {
-    println(config.catalogLocation)
     val manager = OWLManager.createConcurrentOWLOntologyManager()
     config.catalogLocation.foreach(c => manager.addIRIMapper(new CatalogXmlIRIMapper(new File(c))))
     val ontology = if (config.location.startsWith("http")) manager.loadOntology(IRI.create(config.location))
