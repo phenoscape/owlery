@@ -1,13 +1,14 @@
 package org.phenoscape.owlery
 
 import java.io.File
+import java.util.UUID
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.io.FileUtils
 import org.semanticweb.HermiT.ReasonerFactory
 import org.semanticweb.elk.owlapi.ElkReasonerFactory
 import org.semanticweb.owlapi.apibinding.OWLManager
-import org.semanticweb.owlapi.model.{IRI, OWLOntology, OWLOntologyManager}
+import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
 import uk.ac.manchester.cs.jfact.JFactFactory
 
@@ -15,17 +16,23 @@ import scala.collection.JavaConverters._
 
 object Owlery extends MarshallableOwlery {
 
+  private val factory = OWLManager.getOWLDataFactory
+
   val kbs: Map[String, Knowledgebase] = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").asScala.map(configToKBConfig).toSet)
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
 
-  private[this] def importAll(manager: OWLOntologyManager): OWLOntology = {
-    val axioms = for {
-      ont <- manager.getOntologies().asScala
-      axiom <- ont.getAxioms().asScala
-    } yield axiom
+  private[this] def importAll(manager: OWLOntologyManager, loadedOntologies: Set[OWLOntology]): OWLOntology = {
     val newOnt = manager.createOntology
-    manager.addAxioms(newOnt, axioms.asJava)
+    for (ont <- loadedOntologies) {
+      val ontID = ont.getOntologyID
+      if (ontID.getOntologyIRI.isPresent) manager.applyChange(new AddImport(newOnt, factory.getOWLImportsDeclaration(ontID.getOntologyIRI.get)))
+      else {
+        val newOntIRI = IRI.create(s"urn:uuid:${UUID.randomUUID().toString}")
+        manager.applyChange(new SetOntologyID(ont, newOntIRI))
+        manager.applyChange(new AddImport(newOnt, factory.getOWLImportsDeclaration(newOntIRI)))
+      }
+    }
     newOnt
   }
 
@@ -54,10 +61,11 @@ object Owlery extends MarshallableOwlery {
 
   private[this] def loadOntologyFromFolder(location: String): OWLOntology = {
     val manager = OWLManager.createConcurrentOWLOntologyManager()
-    FileUtils.listFiles(new File(location), null, true).asScala.foreach(f => manager.loadOntology(IRI.create(f)))
-    val onts = manager.getOntologies().asScala
-    if (onts.size == 1) onts.head
-    else importAll(manager)
+    val fileOrDir = new File(location)
+    val files = if (fileOrDir.isDirectory) FileUtils.listFiles(fileOrDir, null, true).asScala else List(fileOrDir)
+    val loadedOnts = files.map(f => manager.loadOntology(IRI.create(f))).toSet
+    if (loadedOnts.size == 1) loadedOnts.head
+    else importAll(manager, loadedOnts)
   }
 
   private[this] case class KnowledgebaseConfig(name: String, location: String, reasoner: String)

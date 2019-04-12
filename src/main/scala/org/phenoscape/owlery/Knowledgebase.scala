@@ -1,12 +1,18 @@
 package org.phenoscape.owlery
 
+import java.util.{Date, GregorianCalendar, UUID}
+
+import javax.xml.datatype.DatatypeFactory
 import org.apache.jena.query.{Query, ResultSet}
 import org.phenoscape.owlet.Owlet
 import org.semanticweb.owlapi.apibinding.OWLManager
+import org.phenoscape.owlery.Util.OptionalOption
+import org.semanticweb.owlapi.model
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
 import org.semanticweb.owlapi.reasoner.OWLReasoner
 import org.semanticweb.owlapi.search.EntitySearcher
+import org.semanticweb.owlapi.vocab.{OWL2Datatype, PROVVocabulary}
 import spray.json.DefaultJsonProtocol._
 import spray.json._
 import uk.ac.manchester.cs.owlapi.modularity.{ModuleType, SyntacticLocalityModuleExtractor}
@@ -108,7 +114,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   def extractModuleForEntities(entities: Set[OWLEntity], moduleType: ModuleType, fromOntologies: Set[IRI]): Future[OWLOntology] = Future {
     if (fromOntologies.forall(manager.contains)) {
-      val (extractFromOnt, delete) = fromOntologies.size match {
+      val (extractFromOnt, fresh) = fromOntologies.size match {
         case 0 => (ontology, false)
         case 1 => (manager.getOntology(fromOntologies.head), false)
         case _ => {
@@ -120,13 +126,38 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
       }
       val extractor = new SyntacticLocalityModuleExtractor(manager, extractFromOnt, moduleType)
       val module = extractor.extract(entities.asJava)
-      if (delete) manager.removeOntology(extractFromOnt)
       val localManager = OWLManager.createOWLOntologyManager()
-      localManager.createOntology(module)
+      val moduleOntologyIRI = IRI.create(s"urn:uuid:${UUID.randomUUID().toString}")
+      val moduleOntology = localManager.createOntology(module, moduleOntologyIRI)
+      localManager.applyChanges(createdDerivedFromAnnotations(extractFromOnt).map(ann => new AddOntologyAnnotation(moduleOntology, ann)).toList.asJava)
+      localManager.applyChange(new model.AddOntologyAnnotation(moduleOntology, factory.getOWLAnnotation(Created, currentDateTime())))
+      if (fresh) manager.removeOntology(extractFromOnt)
+      moduleOntology
     } else {
       val bad = fromOntologies.filterNot(manager.contains)
       throw new IllegalArgumentException(s"Ontologies not found: ${bad.mkString(" ")}")
     }
+  }
+
+  private def currentDateTime(): OWLLiteral = {
+    val calendar = new GregorianCalendar()
+    calendar.setTime(new Date())
+    val dateTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(calendar)
+    factory.getOWLLiteral(dateTime.toString, OWL2Datatype.XSD_DATE_TIME)
+  }
+
+  private val WasDerivedFrom = factory.getOWLAnnotationProperty(PROVVocabulary.WAS_DERIVED_FROM.getIRI)
+  private val Used = factory.getOWLAnnotationProperty(PROVVocabulary.USED.getIRI)
+  private val Created = factory.getOWLAnnotationProperty(IRI.create("http://purl.org/dc/terms/created"))
+
+  private def createdDerivedFromAnnotations(sourceOntology: OWLOntology): Set[OWLAnnotation] = {
+    println(sourceOntology.getImportsClosure.asScala.size)
+    (for {
+      ont <- sourceOntology.getImportsClosure.asScala
+      ontID = ont.getOntologyID
+      ontIRI <- ontID.getOntologyIRI.toOption
+      annotations = ontID.getVersionIRI.asSet.asScala.map(v => factory.getOWLAnnotation(Used, v)).asJava
+    } yield factory.getOWLAnnotation(WasDerivedFrom, ontIRI, annotations)).toSet
   }
 
   private def toQueryObject(expression: OWLObject): JsObject = expression match {
