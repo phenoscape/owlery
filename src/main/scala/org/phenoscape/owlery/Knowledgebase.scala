@@ -100,7 +100,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
       "label" -> name.toJson,
       //"reasoner" -> reasoner.getReasonerName.toJson, //FIXME currently HermiT returns null
       "isConsistent" -> reasoner.isConsistent.toJson,
-      "logicalAxiomsCount" -> reasoner.getRootOntology.getLogicalAxiomCount.toJson)
+      "logicalAxiomsCount" -> reasoner.getRootOntology.getLogicalAxiomCount(Imports.INCLUDED).toJson)
     merge(summaryObj.toJson, jsonldContext)
   }
 
