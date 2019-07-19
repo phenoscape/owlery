@@ -1,9 +1,10 @@
 package org.phenoscape.owlery
 
 import org.apache.jena.query.{Query, ResultSet}
+import org.phenoscape.owlery.Util.OptionalOption
 import org.phenoscape.owlet.Owlet
 import org.semanticweb.owlapi.apibinding.OWLManager
-import org.semanticweb.owlapi.model.{OWLClassExpression, OWLEntity, OWLNamedIndividual, OWLObject}
+import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.reasoner.OWLReasoner
 import org.semanticweb.owlapi.search.EntitySearcher
 import spray.json.DefaultJsonProtocol._
@@ -19,9 +20,13 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   private lazy val owlet = new Owlet(this.reasoner)
   private val jsonldContext = Map("@context" -> "https://owlery.phenoscape.org/json/context.jsonld").toJson
 
-  def performSPARQLQuery(query: Query): Future[ResultSet] = Future { owlet.performSPARQLQuery(query) }
+  def performSPARQLQuery(query: Query): Future[ResultSet] = Future {
+    owlet.performSPARQLQuery(query)
+  }
 
-  def expandSPARQLQuery(query: Query): Future[Query] = Future { owlet.expandQuery(query) }
+  def expandSPARQLQuery(query: Query): Future[Query] = Future {
+    owlet.expandQuery(query)
+  }
 
   def querySuperClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean, includeThing: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
     val superClasses = Map("subClassOf" -> reasoner.getSuperClasses(expression, direct).getFlattened.asScala
@@ -82,17 +87,25 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   }
 
   lazy val summary: Future[JsObject] = Future {
-    val summaryObj = Map(
+    val mainOnt = ontologyIDToJSONMap(reasoner.getRootOntology.getOntologyID, 0)
+    val imports = reasoner.getRootOntology.getImports.asScala.toSet.zipWithIndex.map { case (imp, index) => ontologyIDToJSONMap(imp.getOntologyID, index + 1).toJson }.toSeq
+    val summaryObj = mainOnt ++ Map(
       "label" -> name.toJson,
+      "imports" -> imports.toJson,
       //"reasoner" -> reasoner.getReasonerName.toJson, //FIXME currently HermiT returns null
       "isConsistent" -> reasoner.isConsistent.toJson,
       "logicalAxiomsCount" -> reasoner.getRootOntology.getLogicalAxiomCount.toJson)
     merge(summaryObj.toJson, jsonldContext)
   }
 
+  private def ontologyIDToJSONMap(id: OWLOntologyID, anonIndex: Int): Map[String, JsValue] = {
+    val versionIRI = id.getVersionIRI.asScala.map(v => "version" -> v.toString.toJson).toSeq
+    Map("@id" -> id.getOntologyIRI.asScala.map(_.toString).getOrElse(s"_:anonymousOnt$anonIndex").toJson) ++ versionIRI
+  }
+
   private def toQueryObject(expression: OWLObject): JsObject = expression match {
     case named: OWLEntity => JsObject("@id" -> named.getIRI.toString.toJson)
-    case anonymous => JsObject(
+    case anonymous        => JsObject(
       "@id" -> "_:b0".toJson,
       "value" -> anonymous.toString.toJson) //TODO do a better job of converting the expression to a string
   }
