@@ -5,6 +5,7 @@ import org.phenoscape.owlery.Util.OptionalOption
 import org.phenoscape.owlet.Owlet
 import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model._
+import org.semanticweb.owlapi.model.parameters.Imports
 import org.semanticweb.owlapi.reasoner.OWLReasoner
 import org.semanticweb.owlapi.search.EntitySearcher
 import spray.json.DefaultJsonProtocol._
@@ -94,7 +95,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
       "imports" -> imports.toJson,
       //"reasoner" -> reasoner.getReasonerName.toJson, //FIXME currently HermiT returns null
       "isConsistent" -> reasoner.isConsistent.toJson,
-      "logicalAxiomsCount" -> reasoner.getRootOntology.getLogicalAxiomCount.toJson)
+      "logicalAxiomsCount" -> reasoner.getRootOntology.getLogicalAxiomCount(Imports.INCLUDED).toJson)
     merge(summaryObj.toJson, jsonldContext)
   }
 
