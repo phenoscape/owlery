@@ -1,7 +1,7 @@
 package org.phenoscape.owlery
 
 import org.apache.jena.query.Query
-import org.apache.jena.system.JenaSystem
+import org.apache.jena.sys.JenaSystem
 import org.phenoscape.owlery.Owlery.OwleryMarshaller
 import org.phenoscape.owlery.SPARQLFormats._
 import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
