@@ -44,7 +44,7 @@ libraryDependencies ++= {
     "org.phenoscape"         %% "owlet"                  % "1.7",
     "commons-io"             %  "commons-io"             % "2.4",
     "org.apache.jena"        %  "apache-jena-libs"       % "3.14.0",
-    "com.lihaoyi"            %% "utest"                  % "0.6.9" % Test
+    "com.lihaoyi"            %% "utest"                  % "0.7.4" % Test
   )
 }
 
