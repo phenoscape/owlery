@@ -40,7 +40,7 @@ libraryDependencies ++= {
     "net.sourceforge.owlapi" %  "owlapi-distribution"    % "4.5.9",
     "org.semanticweb.elk"    %  "elk-owlapi"             % "0.4.3",
     "net.sourceforge.owlapi" %  "org.semanticweb.hermit" % "1.4.3.456",
-    "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
+    "net.sourceforge.owlapi" %  "jfact"                  % "5.0.3",
     "org.phenoscape"         %% "owlet"                  % "1.6.1",
     "commons-io"             %  "commons-io"             % "2.4",
     "org.apache.jena"        %  "apache-jena-libs"       % "3.10.0",
