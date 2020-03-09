@@ -10,3 +10,13 @@ It also provides a web service front-end for [Owlet](https://github.com/phenosca
 
  * [phenoscape owlery api](https://owlery.phenoscape.org/api/)
      * [swagger.json](https://owlery.phenoscape.org/json/swagger.json)
+
+## Running Owlery
+
+* A docker image is [available on DockerHub](https://hub.docker.com/r/phenoscape/owlery).
+* You can run directly as a Java application (pre-built release coming soon...).
+
+### Configuration
+
+* Configuration file template: https://github.com/phenoscape/owlery/blob/master/src/main/resources/application.conf.example
+* Your own configuration file can be specified with a JVM argument, e.g.: `-Dconfig.file=/etc/default/owlery.conf`
