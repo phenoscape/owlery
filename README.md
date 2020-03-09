@@ -14,7 +14,7 @@ It also provides a web service front-end for [Owlet](https://github.com/phenosca
 ## Running Owlery
 
 * A docker image is [available on DockerHub](https://hub.docker.com/r/phenoscape/owlery).
-* You can run directly as a Java application (pre-built release coming soon...).
+* You can run directly as a Java application: download a `.tgz` [for the latest release](https://github.com/phenoscape/owlery/releases/latest).
 
 ### Configuration
 
