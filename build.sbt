@@ -42,7 +42,7 @@ libraryDependencies ++= {
     "net.sourceforge.owlapi" %  "org.semanticweb.hermit" % "1.4.3.456",
     "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
     "org.phenoscape"         %% "owlet"                  % "1.7",
-    "commons-io"             %  "commons-io"             % "2.4",
+    "commons-io"             %  "commons-io"             % "2.6",
     "org.apache.jena"        %  "apache-jena-libs"       % "3.14.0",
     "com.lihaoyi"            %% "utest"                  % "0.7.4" % Test
   )
