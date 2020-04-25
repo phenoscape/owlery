@@ -4,7 +4,7 @@ organization  := "org.phenoscape"
 
 name          := "owlery"
 
-version       := "0.14"
+version       := "0.15-SNAPSHOT"
 
 packageDescription in Debian := "Owlery"
 
@@ -20,7 +20,7 @@ daemonUser in Linux := normalizedName.value // user which will execute the appli
 
 daemonGroup in Linux := normalizedName.value    // group which will execute the application
 
-scalaVersion  := "2.12.10"
+scalaVersion  := "2.13.2"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 

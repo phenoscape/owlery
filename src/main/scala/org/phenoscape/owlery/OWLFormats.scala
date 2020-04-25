@@ -1,9 +1,8 @@
 package org.phenoscape.owlery
 
+import akka.http.scaladsl.unmarshalling.Unmarshaller
 import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
 import org.semanticweb.owlapi.model.OWLClassExpression
-
-import akka.http.scaladsl.unmarshalling.Unmarshaller
 import scalaz._
 
 object OWLFormats {

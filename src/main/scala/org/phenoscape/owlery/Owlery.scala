@@ -11,11 +11,11 @@ import org.semanticweb.owlapi.model.{IRI, OWLOntology, OWLOntologyManager}
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
 import uk.ac.manchester.cs.jfact.JFactFactory
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object Owlery extends MarshallableOwlery {
 
-  val kbs: Map[String, Knowledgebase] = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").asScala.map(configToKBConfig).toSet)
+  val kbs: Map[String, Knowledgebase] = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").asScala.map(configToKBConfig).to(Set))
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
 
