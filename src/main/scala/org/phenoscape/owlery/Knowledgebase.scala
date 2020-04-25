@@ -26,7 +26,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   }
 
   def expandSPARQLQuery(query: Query): Future[Query] = Future {
-    owlet.expandQuery(query)
+    owlet.expandQuery(query, asValues = true)
   }
 
   def querySuperClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean, includeThing: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
