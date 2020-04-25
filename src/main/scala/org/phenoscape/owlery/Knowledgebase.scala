@@ -11,9 +11,9 @@ import org.semanticweb.owlapi.search.EntitySearcher
 import spray.json.DefaultJsonProtocol._
 import spray.json._
 
-import scala.collection.JavaConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
@@ -89,7 +89,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
   lazy val summary: Future[JsObject] = Future {
     val mainOnt = ontologyIDToJSONMap(reasoner.getRootOntology.getOntologyID, 0)
-    val imports = reasoner.getRootOntology.getImports.asScala.toSet.zipWithIndex.map { case (imp, index) => ontologyIDToJSONMap(imp.getOntologyID, index + 1).toJson }.toSeq
+    val imports = reasoner.getRootOntology.getImports.asScala.to(Set).zipWithIndex.map { case (imp, index) => ontologyIDToJSONMap(imp.getOntologyID, index + 1).toJson }.toSeq
     val summaryObj = mainOnt ++ Map(
       "label" -> name.toJson,
       "imports" -> imports.toJson,
