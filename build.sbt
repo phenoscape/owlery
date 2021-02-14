@@ -4,7 +4,7 @@ organization  := "org.phenoscape"
 
 name          := "owlery"
 
-version       := "0.15"
+version       := "0.16"
 
 packageDescription in Debian := "Owlery"
 
