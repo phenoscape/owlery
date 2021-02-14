@@ -4,7 +4,7 @@ organization  := "org.phenoscape"
 
 name          := "owlery"
 
-version       := "0.15"
+version       := "0.16"
 
 packageDescription in Debian := "Owlery"
 
@@ -30,21 +30,22 @@ testFrameworks += new TestFramework("utest.runner.Framework")
 
 libraryDependencies ++= {
   Seq(
-    "com.typesafe.akka"      %% "akka-stream"            % "2.6.4",
-    "com.typesafe.akka"      %% "akka-actor"             % "2.6.4",
-    "com.typesafe.akka"      %% "akka-slf4j"             % "2.6.4",
+    "com.typesafe.akka"      %% "akka-stream"            % "2.6.12",
+    "com.typesafe.akka"      %% "akka-actor"             % "2.6.12",
+    "com.typesafe.akka"      %% "akka-slf4j"             % "2.6.12",
     "com.typesafe.akka"      %% "akka-http"              % "10.1.13",
     "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.1.13",
-    "ch.megard"              %% "akka-http-cors"         % "0.4.3",
+    "ch.megard"              %% "akka-http-cors"         % "1.1.1",
     "io.spray"               %% "spray-json"             % "1.3.5",
     "net.sourceforge.owlapi" %  "owlapi-distribution"    % "4.5.16",
     "org.semanticweb.elk"    %  "elk-owlapi"             % "0.4.3",
     "net.sourceforge.owlapi" %  "org.semanticweb.hermit" % "1.4.3.456",
     "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
+    "org.geneontology"       %% "whelk-owlapi"           % "1.0.4",
     "org.phenoscape"         %% "owlet"                  % "1.8.1",
-    "commons-io"             %  "commons-io"             % "2.6",
+    "commons-io"             %  "commons-io"             % "2.8.0",
     "org.apache.jena"        %  "apache-jena-libs"       % "3.14.0",
-    "com.lihaoyi"            %% "utest"                  % "0.7.4" % Test
+    "com.lihaoyi"            %% "utest"                  % "0.7.7" % Test
   )
 }
 

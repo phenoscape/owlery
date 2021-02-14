@@ -4,6 +4,7 @@ import java.io.File
 
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.io.FileUtils
+import org.geneontology.whelk.owlapi.WhelkOWLReasonerFactory
 import org.semanticweb.HermiT.ReasonerFactory
 import org.semanticweb.elk.owlapi.ElkReasonerFactory
 import org.semanticweb.owlapi.apibinding.OWLManager
@@ -42,6 +43,7 @@ object Owlery extends MarshallableOwlery {
       case "elk"        => new ElkReasonerFactory().createReasoner(ontology)
       case "hermit"     => new ReasonerFactory().createReasoner(ontology)
       case "jfact"      => new JFactFactory().createReasoner(ontology)
+      case "whelk"      => new WhelkOWLReasonerFactory().createReasoner(ontology)
       case other        => throw new IllegalArgumentException(s"Invalid reasoner specified: $other")
     }
     Knowledgebase(config.name, reasoner)
