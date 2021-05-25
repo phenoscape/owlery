@@ -43,7 +43,7 @@ libraryDependencies ++= {
     "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
     "org.geneontology"       %% "whelk-owlapi"           % "1.0.4",
     "org.phenoscape"         %% "owlet"                  % "1.8.1",
-    "commons-io"             %  "commons-io"             % "2.8.0",
+    "commons-io"             %  "commons-io"             % "2.9.0",
     "org.apache.jena"        %  "apache-jena-libs"       % "3.14.0",
     "com.lihaoyi"            %% "utest"                  % "0.7.7" % Test
   )
