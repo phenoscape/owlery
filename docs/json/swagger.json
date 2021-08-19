@@ -118,12 +118,12 @@
         }, {
           "name" : "prefixes",
           "in" : "query",
-          "description" : "JSON format prefix map, used to expand prefixes in the 'object' expression",
+          "description" : "JSON format prefix map, used to expand prefixes in the 'object' expression.  A JSON format prefix map is a JSON object whose keys are prefixes without the colon separator (e.g., \"owl\"), and whose values are IRI prefixes (typically WITH the hash-mark, \"#\" suffix).  Because these are passed as parameters, they need to be URL-encoded.  An example JSON-format prefix map would be: \'{\"obo\": \"http://purl.obolibrary.org/obo/\", \"part_of\": \"http://purl.obolibrary.org/obo/BFO_0000050\"}\'"
           "required" : false,
           "schema" : {
             "type" : "string",
             "format" : "JSON",
-            "example" : "{\"obo\": \"http://purl.obolibrary.org/obo/\", \"part_of\": \"http://purl.obolibrary.org/obo/BFO_0000050\"}"
+            "example" : "%7B%22obo%22%3A%20%22http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2F%22%2C%20%22part_of%22%3A%20%22http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FBFO_0000050%22%7D"
           }
         }, {
           "name" : "direct",
