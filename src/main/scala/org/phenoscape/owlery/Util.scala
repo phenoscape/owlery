@@ -6,7 +6,7 @@ object Util {
 
   implicit class OptionalOption[T](val self: Optional[T]) extends AnyVal {
 
-    def toOption: Option[T] = if (self.isPresent) Option(self.get) else None
+    def asScala: Option[T] = if (self.isPresent) Some(self.get) else None
 
   }
 

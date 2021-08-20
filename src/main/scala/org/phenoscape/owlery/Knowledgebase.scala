@@ -1,12 +1,9 @@
 package org.phenoscape.owlery
 
-import java.util.{Date, GregorianCalendar, UUID}
-
-import javax.xml.datatype.DatatypeFactory
 import org.apache.jena.query.{Query, ResultSet}
+import org.phenoscape.owlery.Util.OptionalOption
 import org.phenoscape.owlet.Owlet
 import org.semanticweb.owlapi.apibinding.OWLManager
-import org.phenoscape.owlery.Util.OptionalOption
 import org.semanticweb.owlapi.model
 import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.model.parameters.Imports
@@ -17,9 +14,11 @@ import spray.json.DefaultJsonProtocol._
 import spray.json._
 import uk.ac.manchester.cs.owlapi.modularity.{ModuleType, SyntacticLocalityModuleExtractor}
 
-import scala.collection.JavaConverters._
+import java.util.{Date, GregorianCalendar, UUID}
+import javax.xml.datatype.DatatypeFactory
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 case class Knowledgebase(name: String, reasoner: OWLReasoner) {
 
@@ -34,7 +33,7 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   }
 
   def expandSPARQLQuery(query: Query): Future[Query] = Future {
-    owlet.expandQuery(query)
+    owlet.expandQuery(query, asValues = true)
   }
 
   def querySuperClasses(expression: OWLClassExpression, direct: Boolean, includeEquivalent: Boolean, includeThing: Boolean, includeDeprecated: Boolean): Future[JsObject] = Future {
@@ -96,8 +95,11 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   }
 
   lazy val summary: Future[JsObject] = Future {
-    val summaryObj = Map(
+    val mainOnt = ontologyIDToJSONMap(reasoner.getRootOntology.getOntologyID, 0)
+    val imports = reasoner.getRootOntology.getImports.asScala.to(Set).zipWithIndex.map { case (imp, index) => ontologyIDToJSONMap(imp.getOntologyID, index + 1).toJson }.toSeq
+    val summaryObj = mainOnt ++ Map(
       "label" -> name.toJson,
+      "imports" -> imports.toJson,
       //"reasoner" -> reasoner.getReasonerName.toJson, //FIXME currently HermiT returns null
       "isConsistent" -> reasoner.isConsistent.toJson,
       "logicalAxiomsCount" -> reasoner.getRootOntology.getLogicalAxiomCount(Imports.INCLUDED).toJson)
@@ -155,9 +157,14 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
     (for {
       ont <- sourceOntology.getImportsClosure.asScala
       ontID = ont.getOntologyID
-      ontIRI <- ontID.getOntologyIRI.toOption
+      ontIRI <- ontID.getOntologyIRI.asScala
       annotations = ontID.getVersionIRI.asSet.asScala.map(v => factory.getOWLAnnotation(Used, v)).asJava
     } yield factory.getOWLAnnotation(WasDerivedFrom, ontIRI, annotations)).toSet
+  }
+
+  private def ontologyIDToJSONMap(id: OWLOntologyID, anonIndex: Int): Map[String, JsValue] = {
+    val versionIRI = id.getVersionIRI.asScala.map(v => "version" -> v.toString.toJson).toSeq
+    Map("@id" -> id.getOntologyIRI.asScala.map(_.toString).getOrElse(s"_:anonymousOnt$anonIndex").toJson) ++ versionIRI
   }
 
   private def toQueryObject(expression: OWLObject): JsObject = expression match {

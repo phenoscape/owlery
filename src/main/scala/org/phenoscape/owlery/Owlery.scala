@@ -6,6 +6,7 @@ import java.util.UUID
 import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.commons.io.FileUtils
 import org.obolibrary.robot.CatalogXmlIRIMapper
+import org.geneontology.whelk.owlapi.WhelkOWLReasonerFactory
 import org.semanticweb.HermiT.ReasonerFactory
 import org.semanticweb.elk.owlapi.ElkReasonerFactory
 import org.semanticweb.owlapi.apibinding.OWLManager
@@ -13,13 +14,13 @@ import org.semanticweb.owlapi.model._
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory
 import uk.ac.manchester.cs.jfact.JFactFactory
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object Owlery extends MarshallableOwlery {
 
   private val factory = OWLManager.getOWLDataFactory
 
-  val kbs: Map[String, Knowledgebase] = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").asScala.map(configToKBConfig).toSet)
+  val kbs: Map[String, Knowledgebase] = loadKnowledgebases(ConfigFactory.load().getConfigList("owlery.kbs").asScala.map(configToKBConfig).to(Set))
 
   def kb(name: String): Option[Knowledgebase] = kbs.get(name)
 
@@ -56,6 +57,7 @@ object Owlery extends MarshallableOwlery {
       case "elk"        => new ElkReasonerFactory().createReasoner(ontology)
       case "hermit"     => new ReasonerFactory().createReasoner(ontology)
       case "jfact"      => new JFactFactory().createReasoner(ontology)
+      case "whelk"      => new WhelkOWLReasonerFactory().createReasoner(ontology)
       case other        => throw new IllegalArgumentException(s"Invalid reasoner specified: $other")
     }
     Knowledgebase(config.name, reasoner)

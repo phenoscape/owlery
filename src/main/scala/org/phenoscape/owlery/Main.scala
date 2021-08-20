@@ -7,9 +7,7 @@ import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import com.typesafe.config.ConfigFactory
 import org.apache.jena.query.Query
 import org.apache.jena.sys.JenaSystem
-import org.phenoscape.owlery.OWLFormats.OWLFunctionalSyntaxMarshaller
-import org.phenoscape.owlery.OWLFormats.OWLTextUnmarshaller
-import org.phenoscape.owlery.OWLFormats.ModuleTypeUnmarshaller
+import org.phenoscape.owlery.OWLFormats.{ModuleTypeUnmarshaller, OWLFunctionalSyntaxMarshaller, OWLTextUnmarshaller}
 import org.phenoscape.owlery.Owlery.OwleryMarshaller
 import org.phenoscape.owlery.SPARQLFormats._
 import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
@@ -66,7 +64,7 @@ object Main extends HttpApp with App {
   val NoPrefixes = Map.empty[String, String]
 
   def objectAndPrefixParametersToClass(subroute: OWLClassExpression => Route): Route =
-    parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedManchesterClassExpression) { ce =>
+    parameters("object", "prefixes".as[Map[String, String]].?(NoPrefixes)).as(PrefixedManchesterClassExpression) { ce =>
       subroute(ce.expression)
     }
 

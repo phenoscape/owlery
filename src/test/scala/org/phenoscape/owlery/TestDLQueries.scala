@@ -1,14 +1,13 @@
 package org.phenoscape.owlery
 
-import utest._
+import org.apache.jena.sys.JenaSystem
+import org.semanticweb.elk.owlapi.ElkReasonerFactory
 import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.IRI
-import java.io.File
-import org.semanticweb.elk.owlapi.ElkReasonerFactory
+import spray.json.{JsArray, JsString}
+import utest._
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import spray.json.JsArray
-import org.apache.jena.system.JenaSystem
-import spray.json.JsString
 
 object TestDLQueries extends TestSuite {
 
@@ -36,7 +35,7 @@ object TestDLQueries extends TestSuite {
               }
               assert(strings.contains(SkeletalMuscleOrgan.getIRI.toString))
               assert(strings.contains(RespiratorySystemMuscle.getIRI.toString))
-            case _ => ???
+            case _               => ???
           }
         }
 
@@ -50,7 +49,7 @@ object TestDLQueries extends TestSuite {
                 }
                 assert(!strings.contains(SkeletalMuscleOrgan.getIRI.toString))
                 assert(strings.contains(RespiratorySystemMuscle.getIRI.toString))
-              case _ => ???
+              case _               => ???
             }
           }
         }
@@ -67,7 +66,7 @@ object TestDLQueries extends TestSuite {
               assert(strings.contains(SkeletalMuscleOrgan.getIRI.toString))
               assert(strings.contains(RespiratorySystemMuscle.getIRI.toString))
               assert(strings.contains(factory.getOWLNothing.getIRI.toString))
-            case _ => ???
+            case _               => ???
           }
         }
 
@@ -82,7 +81,7 @@ object TestDLQueries extends TestSuite {
                 assert(strings.contains(SkeletalMuscleOrgan.getIRI.toString))
                 assert(strings.contains(RespiratorySystemMuscle.getIRI.toString))
                 assert(!strings.contains(factory.getOWLNothing.getIRI.toString))
-              case _ => ???
+              case _               => ???
             }
           }
         }
@@ -100,7 +99,7 @@ object TestDLQueries extends TestSuite {
               assert(strings.contains(SkeletalMuscleOrgan.getIRI.toString))
               assert(strings.contains(RespiratorySystemMuscle.getIRI.toString))
               assert(!strings.contains(factory.getOWLNothing.getIRI.toString))
-            case _ => ???
+            case _               => ???
           }
         }
       }
