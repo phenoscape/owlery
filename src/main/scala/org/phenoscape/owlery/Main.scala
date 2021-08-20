@@ -90,7 +90,7 @@ object Main extends HttpApp with App {
             case Some(kb) =>
               path("subclasses") {
                 objectAndPrefixParametersToClass { expression =>
-                  parameters('direct.?(false), 'includeEquivalent.?(false), 'includeNothing.?(false), 'includeDeprecated.?(true)) { (direct, includeEquivalent, includeNothing, includeDeprecated) =>
+                  parameters("direct".?(false), "includeEquivalent".?(false), "includeNothing".?(false), "includeDeprecated".?(true)) { (direct, includeEquivalent, includeNothing, includeDeprecated) =>
                     complete {
                       kb.querySubClasses(expression, direct, includeEquivalent, includeNothing, includeDeprecated)
                     }
@@ -99,7 +99,7 @@ object Main extends HttpApp with App {
               } ~
                 path("superclasses") {
                   objectAndPrefixParametersToClass { expression =>
-                    parameters('direct.?(false), 'includeEquivalent.?(false), 'includeThing.?(false), 'includeDeprecated.?(true)) { (direct, includeEquivalent, includeThing, includeDeprecated) =>
+                    parameters("direct".?(false), "includeEquivalent".?(false), "includeThing".?(false), "includeDeprecated".?(true)) { (direct, includeEquivalent, includeThing, includeDeprecated) =>
                       complete {
                         kb.querySuperClasses(expression, direct, includeEquivalent, includeThing, includeDeprecated)
                       }
@@ -108,7 +108,7 @@ object Main extends HttpApp with App {
                 } ~
                 path("instances") {
                   objectAndPrefixParametersToClass { expression =>
-                    parameters('direct.?(false), 'includeDeprecated.?(true)) { (direct, includeDeprecated) =>
+                    parameters("direct".?(false), "includeDeprecated".?(true)) { (direct, includeDeprecated) =>
                       complete {
                         kb.queryInstances(expression, direct, includeDeprecated)
                       }
@@ -117,7 +117,7 @@ object Main extends HttpApp with App {
                 } ~
                 path("equivalent") {
                   objectAndPrefixParametersToClass { expression =>
-                    parameters('includeDeprecated.?(true)) { includeDeprecated =>
+                    parameters("includeDeprecated".?(true)) { includeDeprecated =>
                       complete {
                         kb.queryEquivalentClasses(expression, includeDeprecated)
                       }
@@ -132,8 +132,8 @@ object Main extends HttpApp with App {
                   }
                 } ~
                 path("types") {
-                  parameters('object, 'prefixes.as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
-                    parameters('direct.?(true), 'includeThing.?(false), 'includeDeprecated.?(true)) { (direct, includeThing, includeDeprecated) =>
+                  parameters("object", "prefixes".as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
+                    parameters("direct".?(true), "includeThing".?(false), "includeDeprecated".?(true)) { (direct, includeThing, includeDeprecated) =>
                       complete {
                         kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct, includeThing, includeDeprecated)
                       }
@@ -142,21 +142,21 @@ object Main extends HttpApp with App {
                 } ~
                 path("extract") {
                   post {
-                    parameters('type.as[ModuleType].?(ModuleType.STAR), 'ontologies.as[Seq[IRI]].?(Seq.empty[IRI])) { (moduleType, fromIRIs) =>
+                    parameters("type".as[ModuleType].?(ModuleType.STAR), "ontologies".as[Seq[IRI]].?(Seq.empty[IRI])) { (moduleType, fromIRIs) =>
                       handleWith(kb.extractModuleForOntology(_, moduleType, fromIRIs.toSet))
                     }
                   }
                 } ~
                 path("sparql") {
                   get {
-                    parameter('query.as[Query]) { query =>
+                    parameter("query".as[Query]) { query =>
                       complete {
                         kb.performSPARQLQuery(query)
                       }
                     }
                   } ~
                     post {
-                      parameter('query.as[Query].?(NullQuery)) {
+                      parameter("query".as[Query].?(NullQuery)) {
                         case NullQuery => handleWith(kb.performSPARQLQuery)
                         case query     => complete {
                           kb.performSPARQLQuery(query)
@@ -166,7 +166,7 @@ object Main extends HttpApp with App {
                 } ~
                 path("expand") {
                   get {
-                    parameter('query.as[Query]) { query =>
+                    parameter("query".as[Query]) { query =>
                       complete {
                         kb.expandSPARQLQuery(query)
                       }

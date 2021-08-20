@@ -49,7 +49,7 @@ object Owlery extends MarshallableOwlery {
 
   private[this] def loadKnowledgebase(config: KnowledgebaseConfig): Knowledgebase = {
     val manager = OWLManager.createConcurrentOWLOntologyManager()
-    config.catalogLocation.foreach(c => manager.addIRIMapper(new CatalogXmlIRIMapper(new File(c))))
+    config.catalogLocation.foreach(c => manager.getIRIMappers().add(new CatalogXmlIRIMapper(new File(c))))
     val ontology = if (config.location.startsWith("http")) manager.loadOntology(IRI.create(config.location))
     else loadOntologyFromFolder(config.location, manager)
     val reasoner = config.reasoner.toLowerCase match {
