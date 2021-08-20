@@ -46,7 +46,7 @@ libraryDependencies ++= {
     "commons-io"             %  "commons-io"             % "2.11.0",
     "org.apache.jena"        %  "apache-jena-libs"       % "3.17.0",
     "org.obolibrary.robot"   %  "robot-core"             % "1.4.0" exclude("org.slf4j", "slf4j-log4j12"),
-    "com.lihaoyi"            %% "utest"                  % "0.7.7" % Test
+    "com.lihaoyi"            %% "utest"                  % "0.7.10" % Test
   )
 }
 
