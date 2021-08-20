@@ -15,6 +15,7 @@ owlery {
 			name = uberon
 			location = "http://purl.obolibrary.org/obo/uberon/ext.owl"
 			reasoner = structural
+			catalog = "catalog.xml"
 		},
 		{
 			name = phenoscape
