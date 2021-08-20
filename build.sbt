@@ -45,6 +45,7 @@ libraryDependencies ++= {
     "org.phenoscape"         %% "owlet"                  % "1.8.1",
     "commons-io"             %  "commons-io"             % "2.8.0",
     "org.apache.jena"        %  "apache-jena-libs"       % "3.14.0",
+    "org.obolibrary.robot"   %  "robot-core"             % "1.4.0" exclude("org.slf4j", "slf4j-log4j12"),
     "com.lihaoyi"            %% "utest"                  % "0.7.7" % Test
   )
 }

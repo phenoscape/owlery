@@ -1,12 +1,13 @@
 package org.phenoscape.owlery
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.sprayJsonMarshaller
-import akka.http.scaladsl.server.{HttpApp, Route}
+import akka.http.scaladsl.server.{ExceptionHandler, HttpApp, Route, ValidationRejection}
 import akka.http.scaladsl.unmarshalling.Unmarshaller
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import com.typesafe.config.ConfigFactory
 import org.apache.jena.query.Query
 import org.apache.jena.sys.JenaSystem
+import org.phenoscape.owlery.OWLFormats.{ModuleTypeUnmarshaller, OWLFunctionalSyntaxMarshaller, OWLTextUnmarshaller}
 import org.phenoscape.owlery.Owlery.OwleryMarshaller
 import org.phenoscape.owlery.SPARQLFormats._
 import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
@@ -15,6 +16,7 @@ import org.semanticweb.owlapi.model.{IRI, OWLClassExpression}
 import org.semanticweb.owlapi.reasoner.InferenceType
 import spray.json.DefaultJsonProtocol._
 import spray.json._
+import uk.ac.manchester.cs.owlapi.modularity.ModuleType
 
 object Main extends HttpApp with App {
 
@@ -31,6 +33,13 @@ object Main extends HttpApp with App {
         case _                      => throw new IllegalArgumentException(s"Only string values are supported in JSON map: $text")
       }
       case _           => throw new IllegalArgumentException(s"Not a valid JSON map: $text")
+    }
+  }
+
+  implicit val IRISeqFromJSONString: Unmarshaller[String, Seq[IRI]] = Unmarshaller.strict { text =>
+    text.parseJson match {
+      case a: JsArray => a.elements.map(_.convertTo[String]).map(IRI.create)
+      case _          => throw new IllegalArgumentException(s"Not a valid JSON array: $text")
     }
   }
 
@@ -59,6 +68,11 @@ object Main extends HttpApp with App {
       subroute(ce.expression)
     }
 
+  implicit def exceptionHandler: ExceptionHandler = ExceptionHandler {
+    case e: IllegalArgumentException =>
+      reject(ValidationRejection(e.getMessage, Some(e)))
+  }
+
   def initializeReasoners(): Unit = Owlery.kbs.values.foreach(_.reasoner.precomputeInferences(InferenceType.CLASS_HIERARCHY))
 
   initializeReasoners()
@@ -67,105 +81,114 @@ object Main extends HttpApp with App {
   val port = conf.getInt("owlery.port")
   val host = conf.getString("owlery.host")
 
-  def routes: Route = cors() {
-    pathPrefix("kbs") {
-      pathPrefix(Segment) { kbName =>
-        Owlery.kb(kbName) match {
-          case None     => reject
-          case Some(kb) =>
-            path("subclasses") {
-              objectAndPrefixParametersToClass { expression =>
-                parameters("direct".?(false), "includeEquivalent".?(false), "includeNothing".?(false), "includeDeprecated".?(true)) { (direct, includeEquivalent, includeNothing, includeDeprecated) =>
-                  complete {
-                    kb.querySubClasses(expression, direct, includeEquivalent, includeNothing, includeDeprecated)
-                  }
-                }
-              }
-            } ~
-              path("superclasses") {
+  def routes: Route = Route.seal {
+    cors() {
+      pathPrefix("kbs") {
+        pathPrefix(Segment) { kbName =>
+          Owlery.kb(kbName) match {
+            case None     => reject
+            case Some(kb) =>
+              path("subclasses") {
                 objectAndPrefixParametersToClass { expression =>
-                  parameters("direct".?(false), "includeEquivalent".?(false), "includeThing".?(false), "includeDeprecated".?(true)) { (direct, includeEquivalent, includeThing, includeDeprecated) =>
+                  parameters("direct".?(false), "includeEquivalent".?(false), "includeNothing".?(false), "includeDeprecated".?(true)) { (direct, includeEquivalent, includeNothing, includeDeprecated) =>
                     complete {
-                      kb.querySuperClasses(expression, direct, includeEquivalent, includeThing, includeDeprecated)
+                      kb.querySubClasses(expression, direct, includeEquivalent, includeNothing, includeDeprecated)
                     }
                   }
                 }
               } ~
-              path("instances") {
-                objectAndPrefixParametersToClass { expression =>
-                  parameters("direct".?(false), "includeDeprecated".?(true)) { (direct, includeDeprecated) =>
-                    complete {
-                      kb.queryInstances(expression, direct, includeDeprecated)
-                    }
-                  }
-                }
-              } ~
-              path("equivalent") {
-                objectAndPrefixParametersToClass { expression =>
-                  parameters("includeDeprecated".?(true)) { includeDeprecated =>
-                    complete {
-                      kb.queryEquivalentClasses(expression, includeDeprecated)
-                    }
-                  }
-                }
-              } ~
-              path("satisfiable") {
-                objectAndPrefixParametersToClass { expression =>
-                  complete {
-                    kb.isSatisfiable(expression)
-                  }
-                }
-              } ~
-              path("types") {
-                parameters("object", "prefixes".as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
-                  parameters("direct".?(true), "includeThing".?(false), "includeDeprecated".?(true)) { (direct, includeThing, includeDeprecated) =>
-                    complete {
-                      kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct, includeThing, includeDeprecated)
-                    }
-                  }
-                }
-              } ~
-              path("sparql") {
-                get {
-                  parameter("query".as[Query]) { query =>
-                    complete {
-                      kb.performSPARQLQuery(query)
-                    }
-                  }
-                } ~
-                  post {
-                    parameter("query".as[Query].?(NullQuery)) {
-                      case NullQuery => handleWith(kb.performSPARQLQuery)
-                      case query     => complete {
-                        kb.performSPARQLQuery(query)
+                path("superclasses") {
+                  objectAndPrefixParametersToClass { expression =>
+                    parameters("direct".?(false), "includeEquivalent".?(false), "includeThing".?(false), "includeDeprecated".?(true)) { (direct, includeEquivalent, includeThing, includeDeprecated) =>
+                      complete {
+                        kb.querySuperClasses(expression, direct, includeEquivalent, includeThing, includeDeprecated)
                       }
                     }
                   }
-              } ~
-              path("expand") {
-                get {
-                  parameter("query".as[Query]) { query =>
-                    complete {
-                      kb.expandSPARQLQuery(query)
+                } ~
+                path("instances") {
+                  objectAndPrefixParametersToClass { expression =>
+                    parameters("direct".?(false), "includeDeprecated".?(true)) { (direct, includeDeprecated) =>
+                      complete {
+                        kb.queryInstances(expression, direct, includeDeprecated)
+                      }
                     }
                   }
                 } ~
-                  post {
-                    handleWith(kb.expandSPARQLQuery)
+                path("equivalent") {
+                  objectAndPrefixParametersToClass { expression =>
+                    parameters("includeDeprecated".?(true)) { includeDeprecated =>
+                      complete {
+                        kb.queryEquivalentClasses(expression, includeDeprecated)
+                      }
+                    }
                   }
-              } ~
-              pathEnd {
-                complete {
-                  kb.summary
+                } ~
+                path("satisfiable") {
+                  objectAndPrefixParametersToClass { expression =>
+                    complete {
+                      kb.isSatisfiable(expression)
+                    }
+                  }
+                } ~
+                path("types") {
+                  parameters("object", "prefixes".as[Map[String, String]].?(NoPrefixes)).as(PrefixedIndividualIRI) { preIRI =>
+                    parameters("direct".?(true), "includeThing".?(false), "includeDeprecated".?(true)) { (direct, includeThing, includeDeprecated) =>
+                      complete {
+                        kb.queryTypes(factory.getOWLNamedIndividual(preIRI.iri), direct, includeThing, includeDeprecated)
+                      }
+                    }
+                  }
+                } ~
+                path("extract") {
+                  post {
+                    parameters("type".as[ModuleType].?(ModuleType.STAR), "ontologies".as[Seq[IRI]].?(Seq.empty[IRI])) { (moduleType, fromIRIs) =>
+                      handleWith(kb.extractModuleForOntology(_, moduleType, fromIRIs.toSet))
+                    }
+                  }
+                } ~
+                path("sparql") {
+                  get {
+                    parameter("query".as[Query]) { query =>
+                      complete {
+                        kb.performSPARQLQuery(query)
+                      }
+                    }
+                  } ~
+                    post {
+                      parameter("query".as[Query].?(NullQuery)) {
+                        case NullQuery => handleWith(kb.performSPARQLQuery)
+                        case query     => complete {
+                          kb.performSPARQLQuery(query)
+                        }
+                      }
+                    }
+                } ~
+                path("expand") {
+                  get {
+                    parameter("query".as[Query]) { query =>
+                      complete {
+                        kb.expandSPARQLQuery(query)
+                      }
+                    }
+                  } ~
+                    post {
+                      handleWith(kb.expandSPARQLQuery)
+                    }
+                } ~
+                pathEnd {
+                  complete {
+                    kb.summary
+                  }
                 }
-              }
-        }
-      } ~
-        pathEnd {
-          complete {
-            Owlery
           }
-        }
+        } ~
+          pathEnd {
+            complete {
+              Owlery
+            }
+          }
+      }
     }
   }
 
