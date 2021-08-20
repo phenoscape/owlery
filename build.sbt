@@ -20,7 +20,7 @@ daemonUser in Linux := normalizedName.value // user which will execute the appli
 
 daemonGroup in Linux := normalizedName.value    // group which will execute the application
 
-scalaVersion  := "2.13.4"
+scalaVersion  := "2.13.6"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
@@ -35,16 +35,17 @@ libraryDependencies ++= {
     "com.typesafe.akka"      %% "akka-slf4j"             % "2.6.12",
     "com.typesafe.akka"      %% "akka-http"              % "10.2.6",
     "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.2.6",
-    "ch.megard"              %% "akka-http-cors"         % "1.1.1",
+    "ch.megard"              %% "akka-http-cors"         % "1.1.2",
     "io.spray"               %% "spray-json"             % "1.3.5",
-    "net.sourceforge.owlapi" %  "owlapi-distribution"    % "4.5.16",
+    "net.sourceforge.owlapi" %  "owlapi-distribution"    % "4.5.20",
     "org.semanticweb.elk"    %  "elk-owlapi"             % "0.4.3",
     "net.sourceforge.owlapi" %  "org.semanticweb.hermit" % "1.4.3.456",
     "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
-    "org.geneontology"       %% "whelk-owlapi"           % "1.0.4",
+    "org.geneontology"       %% "whelk-owlapi"           % "1.1.1",
     "org.phenoscape"         %% "owlet"                  % "1.8.1",
-    "commons-io"             %  "commons-io"             % "2.8.0",
+    "commons-io"             %  "commons-io"             % "2.11.0",
     "org.apache.jena"        %  "apache-jena-libs"       % "3.14.0",
+    "org.obolibrary.robot"   %  "robot-core"             % "1.4.0" exclude("org.slf4j", "slf4j-log4j12"),
     "com.lihaoyi"            %% "utest"                  % "0.7.7" % Test
   )
 }
