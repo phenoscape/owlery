@@ -65,7 +65,7 @@ object Owlery extends MarshallableOwlery {
 
   private[this] def loadOntologyFromFolder(location: String, manager: OWLOntologyManager): OWLOntology = {
     val fileOrDir = new File(location)
-    val files = if (fileOrDir.isDirectory) FileUtils.listFiles(fileOrDir, null, true).asScala else List(fileOrDir)
+    val files = if (fileOrDir.isDirectory) FileUtils.listFiles(fileOrDir, null, true).asScala.filterNot(_.isHidden) else List(fileOrDir)
     val loadedOnts = files.map(f => manager.loadOntology(IRI.create(f))).toSet
     if (loadedOnts.size == 1) loadedOnts.head
     else importAll(manager, loadedOnts)
