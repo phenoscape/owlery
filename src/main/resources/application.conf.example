@@ -25,7 +25,12 @@ owlery {
 		{
 			name = tto
 			location = "/Users/jim/Desktop/owlery/tto"
+                        # location may be a local directory name or a URL.
 			reasoner = structural
+                        # reasoner should be "structural", "elk", "hermit", "jfact", or "whelk"
+                        # structural does no DL reasoning
+                        # elk and whelk are limited to the OWL EL profile
+                        # hermit and jfact are OWL DL reasoners.
 		}
 	]
 }
