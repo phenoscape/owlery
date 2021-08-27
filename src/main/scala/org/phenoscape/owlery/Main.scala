@@ -9,8 +9,8 @@ import org.apache.jena.query.Query
 import org.apache.jena.sys.JenaSystem
 import org.phenoscape.owlery.OWLFormats.{ModuleTypeUnmarshaller, OWLFunctionalSyntaxMarshaller, OWLTextUnmarshaller}
 import org.phenoscape.owlery.Owlery.OwleryMarshaller
+import org.phenoscape.owlery.PrefixEntityChecker.KnownEntities
 import org.phenoscape.owlery.SPARQLFormats._
-import org.phenoscape.owlet.ManchesterSyntaxClassExpressionParser
 import org.semanticweb.owlapi.apibinding.OWLManager
 import org.semanticweb.owlapi.model.{IRI, OWLClassExpression}
 import org.semanticweb.owlapi.reasoner.InferenceType
@@ -45,10 +45,10 @@ object Main extends HttpApp with App {
 
   val NullQuery = new Query()
 
-  case class PrefixedManchesterClassExpression(text: String, prefixes: Map[String, String]) {
+  case class PrefixedManchesterClassExpression(text: String, prefixes: Map[String, String], knownEntities: KnownEntities) {
 
-    private val parseResult = ManchesterSyntaxClassExpressionParser.parse(text, prefixes)
-    require(parseResult.isSuccess, parseResult.swap.getOrElse("Error parsing class expression"))
+    private val parseResult = ManchesterSyntaxClassExpressionParser.parse(text, prefixes, Some(knownEntities))
+    require(parseResult.isRight, parseResult.swap.getOrElse("Error parsing class expression"))
     val expression: OWLClassExpression = parseResult.toOption.get
 
   }
@@ -56,15 +56,18 @@ object Main extends HttpApp with App {
   case class PrefixedIndividualIRI(text: String, prefixes: Map[String, String]) {
 
     private val parseResult = ManchesterSyntaxClassExpressionParser.parseIRI(text, prefixes)
-    require(parseResult.isSuccess, parseResult.swap.getOrElse("Error parsing individual IRI"))
+    require(parseResult.isRight, parseResult.swap.getOrElse("Error parsing individual IRI"))
     val iri: IRI = parseResult.toOption.get
 
   }
 
+  def constructPrefixedClassExpresion(knownEntities: KnownEntities): (String, Map[String, String]) => PrefixedManchesterClassExpression =
+    (text: String, prefixes: Map[String, String]) => PrefixedManchesterClassExpression(text, prefixes, knownEntities)
+
   val NoPrefixes = Map.empty[String, String]
 
-  def objectAndPrefixParametersToClass(subroute: OWLClassExpression => Route): Route =
-    parameters("object", "prefixes".as[Map[String, String]].?(NoPrefixes)).as(PrefixedManchesterClassExpression) { ce =>
+  def objectAndPrefixParametersToClass(knownEntities: KnownEntities) = (subroute: OWLClassExpression => Route) =>
+    parameters("object", "prefixes".as[Map[String, String]].?(NoPrefixes)).as(constructPrefixedClassExpresion(knownEntities)) { ce =>
       subroute(ce.expression)
     }
 
@@ -92,7 +95,7 @@ object Main extends HttpApp with App {
               case None     => reject
               case Some(kb) =>
                 path("subclasses") {
-                  objectAndPrefixParametersToClass { expression =>
+                  objectAndPrefixParametersToClass(kb.knownEntities) { expression =>
                     parameters("direct".?(false), "includeEquivalent".?(false), "includeNothing".?(false), "includeDeprecated".?(true)) { (direct, includeEquivalent, includeNothing, includeDeprecated) =>
                       complete {
                         kb.querySubClasses(expression, direct, includeEquivalent, includeNothing, includeDeprecated)
@@ -101,7 +104,7 @@ object Main extends HttpApp with App {
                   }
                 } ~
                   path("superclasses") {
-                    objectAndPrefixParametersToClass { expression =>
+                    objectAndPrefixParametersToClass(kb.knownEntities) { expression =>
                       parameters("direct".?(false), "includeEquivalent".?(false), "includeThing".?(false), "includeDeprecated".?(true)) { (direct, includeEquivalent, includeThing, includeDeprecated) =>
                         complete {
                           kb.querySuperClasses(expression, direct, includeEquivalent, includeThing, includeDeprecated)
@@ -110,7 +113,7 @@ object Main extends HttpApp with App {
                     }
                   } ~
                   path("instances") {
-                    objectAndPrefixParametersToClass { expression =>
+                    objectAndPrefixParametersToClass(kb.knownEntities) { expression =>
                       parameters("direct".?(false), "includeDeprecated".?(true)) { (direct, includeDeprecated) =>
                         complete {
                           kb.queryInstances(expression, direct, includeDeprecated)
@@ -119,7 +122,7 @@ object Main extends HttpApp with App {
                     }
                   } ~
                   path("equivalent") {
-                    objectAndPrefixParametersToClass { expression =>
+                    objectAndPrefixParametersToClass(kb.knownEntities) { expression =>
                       parameters("includeDeprecated".?(true)) { includeDeprecated =>
                         complete {
                           kb.queryEquivalentClasses(expression, includeDeprecated)
@@ -128,7 +131,7 @@ object Main extends HttpApp with App {
                     }
                   } ~
                   path("satisfiable") {
-                    objectAndPrefixParametersToClass { expression =>
+                    objectAndPrefixParametersToClass(kb.knownEntities) { expression =>
                       complete {
                         kb.isSatisfiable(expression)
                       }
