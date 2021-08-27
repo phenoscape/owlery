@@ -1,6 +1,7 @@
 package org.phenoscape.owlery
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport.sprayJsonMarshaller
+import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.{ExceptionHandler, HttpApp, Route, ValidationRejection}
 import akka.http.scaladsl.unmarshalling.Unmarshaller
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
@@ -87,7 +88,13 @@ object Main extends HttpApp with App {
   def routes: Route = Route.seal {
     cors() {
       pathPrefix("docs") {
-        getFromResourceDirectory("docs")
+        pathEnd {
+          redirect(Uri("docs/"), StatusCodes.MovedPermanently)
+        } ~
+          pathSingleSlash {
+            getFromResource("docs/index.html")
+          } ~
+          getFromResourceDirectory("docs")
       } ~
         pathPrefix("kbs") {
           pathPrefix(Segment) { kbName =>
@@ -194,6 +201,9 @@ object Main extends HttpApp with App {
                 Owlery
               }
             }
+        } ~
+        pathSingleSlash {
+          redirect(Uri("../docs/"), StatusCodes.SeeOther)
         }
     }
   }
