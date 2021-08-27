@@ -1,6 +1,7 @@
 package org.phenoscape.owlery
 
 import org.apache.jena.query.{Query, ResultSet}
+import org.phenoscape.owlery.PrefixEntityChecker.KnownEntities
 import org.phenoscape.owlery.Util.OptionalOption
 import org.phenoscape.owlet.Owlet
 import org.semanticweb.owlapi.apibinding.OWLManager
@@ -25,7 +26,8 @@ case class Knowledgebase(name: String, reasoner: OWLReasoner) {
   private val factory = OWLManager.getOWLDataFactory
   private lazy val owlet = new Owlet(this.reasoner)
   private val jsonldContext = Map("@context" -> "https://owlery.phenoscape.org/json/context.jsonld").toJson
-  private val ontology = reasoner.getRootOntology
+  val ontology: OWLOntology = reasoner.getRootOntology
+  val knownEntities: KnownEntities = PrefixEntityChecker.findKnownEntities(ontology)
   private val manager = ontology.getOWLOntologyManager
 
   def performSPARQLQuery(query: Query): Future[ResultSet] = Future {
