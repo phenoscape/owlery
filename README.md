@@ -20,3 +20,8 @@ It also provides a web service front-end for [Owlet](https://github.com/phenosca
 
 * Configuration file template: https://github.com/phenoscape/owlery/blob/master/src/main/resources/application.conf.example
 * Your own configuration file can be specified with a JVM argument, e.g.: `-Dconfig.file=/etc/default/owlery.conf`
+
+### Experimenting with the API
+
+* The API description can be found on your server.  If your server runs locally on port 8080, you can get the API description at `http://localhost:8080/docs/swagger.json`.
+* An interactive version of the API can be found here: `http://localhost:8080/docs/index.html`
