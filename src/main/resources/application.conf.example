@@ -11,26 +11,29 @@ owlery {
     port = 8080
     host = localhost
 	kbs = [
-		{
-			name = uberon
-			location = "http://purl.obolibrary.org/obo/uberon/ext.owl"
-			reasoner = structural
-			catalog = "catalog.xml"
-		},
-		{
+	        {
 			name = phenoscape
+			# Location of the ontology file to load. If this is a folder, all files in the folder will be imported into one ontology.
 			location = "/Users/jim/Desktop/owlery/phenoscape"
+			# Reasoner should be "structural", "elk", "hermit", "jfact", or "whelk"
+                        # structural does no DL reasoning
+                        # elk and whelk are limited to the OWL EL profile (whelk additionally supports some of OWL RL for individuals)
+                        # hermit and jfact are OWL DL reasoners.
 			reasoner = elk
 		},
 		{
+			name = uberon
+			# If 'location' is an IRI, the ontology will be obtained either by downloading from the IRI, or located according to a catalog file.
+			location = "http://purl.obolibrary.org/obo/uberon/ext.owl"
+			reasoner = structural
+			# The catalog file maps ontology IRIs to URLs or file locations (same format used by Protege)
+			catalog = "catalog.xml"
+		},
+		
+		{
 			name = tto
 			location = "/Users/jim/Desktop/owlery/tto"
-                        # location may be a local directory name or a URL.
 			reasoner = structural
-                        # reasoner should be "structural", "elk", "hermit", "jfact", or "whelk"
-                        # structural does no DL reasoning
-                        # elk and whelk are limited to the OWL EL profile
-                        # hermit and jfact are OWL DL reasoners.
 		}
 	]
 }
