@@ -35,7 +35,7 @@ owlery {
   host = localhost
   kbs = [
           {
-            name = uberon
+            name = myproject
             location = "http://example.org/my-importer-ont.owl"
             reasoner = hermit
             catalog = "/data/project/catalog.xml"
