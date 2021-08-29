@@ -33,10 +33,8 @@ RUN apt-get update -y && \
             fakeroot
 
 # Install sbt (Scala Build Tool) through its Debian package directory.
-RUN echo "deb https://dl.bintray.com/sbt/debian /" > \
-         /etc/apt/sources.list.d/sbt.list && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 \
-                --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" > /etc/apt/sources.list.d/sbt.list && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
 
 RUN apt-get update -y && \
     apt-get install -y   \
