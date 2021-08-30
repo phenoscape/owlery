@@ -37,15 +37,16 @@ libraryDependencies ++= {
     "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.2.6",
     "ch.megard"              %% "akka-http-cors"         % "1.1.2",
     "io.spray"               %% "spray-json"             % "1.3.5",
-    "net.sourceforge.owlapi" %  "owlapi-distribution"    % "4.5.20",
-    "org.semanticweb.elk"    %  "elk-owlapi"             % "0.4.3",
+    "net.sourceforge.owlapi" %  "owlapi-distribution"    % "4.5.20" exclude("org.slf4j", "slf4j-log4j12"),
+    "org.semanticweb.elk"    %  "elk-owlapi"             % "0.4.3" exclude("log4j", "log4j"),
     "net.sourceforge.owlapi" %  "org.semanticweb.hermit" % "1.4.3.456",
     "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
     "org.geneontology"       %% "whelk-owlapi"           % "1.1.1",
-    "org.phenoscape"         %% "owlet"                  % "1.9",
+    "org.phenoscape"         %% "owlet"                  % "1.9" exclude("org.slf4j", "slf4j-log4j12"),
     "commons-io"             %  "commons-io"             % "2.11.0",
-    "org.apache.jena"        %  "apache-jena-libs"       % "4.1.0",
+    "org.apache.jena"        %  "apache-jena-libs"       % "4.1.0" exclude("org.slf4j", "slf4j-log4j12"),
     "org.obolibrary.robot"   %  "robot-core"             % "1.4.3" exclude("org.slf4j", "slf4j-log4j12"),
+    "ch.qos.logback"         %  "logback-classic"        % "1.2.3",
     "com.lihaoyi"            %% "utest"                  % "0.7.10" % Test
   )
 }
