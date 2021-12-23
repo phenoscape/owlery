@@ -14,7 +14,7 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
-    - run: docker build . --file docker/Dockerfile --tag owlery:${GITHUB_REF#refs/heads/}
+    - run: docker build . --file Docker/Dockerfile --tag owlery:${GITHUB_REF#refs/heads/}
     - name: Dockerize
       if: success()
       uses: manusa/actions-publish-docker@v1.1.2
