@@ -20,7 +20,7 @@ daemonUser in Linux := normalizedName.value // user which will execute the appli
 
 daemonGroup in Linux := normalizedName.value    // group which will execute the application
 
-scalaVersion  := "2.13.6"
+scalaVersion  := "2.13.8"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
