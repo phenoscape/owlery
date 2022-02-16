@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.{ExceptionHandler, HttpApp, Route, ValidationRe
 import akka.http.scaladsl.unmarshalling.Unmarshaller
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import com.typesafe.config.ConfigFactory
+import org.apache.commons.io.IOUtils
 import org.apache.jena.query.Query
 import org.apache.jena.sys.JenaSystem
 import org.phenoscape.owlery.OWLFormats.{ModuleTypeUnmarshaller, OWLFunctionalSyntaxMarshaller, OWLTextUnmarshaller}
@@ -85,16 +86,28 @@ object Main extends HttpApp with App {
   val conf = ConfigFactory.load()
   val port = conf.getInt("owlery.port")
   val host = conf.getString("owlery.host")
+  val basePath = if (conf.hasPath("owlery.base-path")) conf.getString("owlery.base-path") else "/"
+
+  private val swaggerText = IOUtils
+    .toString(this.getClass.getResourceAsStream("/docs/swagger.yaml"), "UTF-8")
+    .replace("{{basePathToReplace}}", basePath)
 
   def routes: Route = Route.seal {
     cors() {
       logRequestResult("", Logging.InfoLevel) {
-        pathPrefix("docs") {
+        pathSingleSlash {
+          redirect(Uri("docs/"), StatusCodes.SeeOther)
+        } ~ pathPrefix("docs") {
           pathEnd {
             redirect(Uri("docs/"), StatusCodes.MovedPermanently)
           } ~
             pathSingleSlash {
               getFromResource("docs/index.html")
+            } ~
+            path("swagger.yaml") {
+              complete {
+                swaggerText
+              }
             } ~
             getFromResourceDirectory("docs")
         } ~
@@ -203,9 +216,6 @@ object Main extends HttpApp with App {
                   Owlery
                 }
               }
-          } ~
-          pathSingleSlash {
-            redirect(Uri("../docs/"), StatusCodes.SeeOther)
           }
       }
     }
