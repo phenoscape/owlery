@@ -9,7 +9,8 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-basePath: "{{basePathToReplace}}"
+servers:
+  - url: "{{basePathToReplace}}"
 tags:
   - name: Knowledgebases
   - name: DL queries
