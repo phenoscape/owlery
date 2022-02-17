@@ -8,8 +8,8 @@ It also provides a web service front-end for [Owlet](https://github.com/phenosca
 
 ## Examples
 
- * [phenoscape owlery api](https://owlery.phenoscape.org/api/) _This link needs to be updated to reflect the current Owlery API location_
-     * [swagger.json](https://owlery.phenoscape.org/json/swagger.json)
+ * [Phenoscape Owlery api](https://kb.phenoscape.org/owlery/docs/)
+     * [swagger.yaml](https://kb.phenoscape.org/owlery/docs/swagger.yaml)
 
 ## Running Owlery
 
@@ -56,5 +56,5 @@ Say the ontology `http://example.org/my-importer-ont.owl` contains an `owl:impor
 
 ### Experimenting with the API
 
-* The API description can be found on your server.  If your server runs locally on port 8080, you can get the API description at `http://localhost:8080/docs/swagger.json`.
-* An interactive version of the API can be found here: `http://localhost:8080/docs/index.html`
+* The API description can be found on your server.  If your server runs locally on port 8080, you can get the API description at `http://localhost:8080/docs/swagger.yaml`.
+* An interactive version of the API can be found here: `http://localhost:8080/docs/`
