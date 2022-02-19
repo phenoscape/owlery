@@ -37,7 +37,7 @@ libraryDependencies ++= {
     "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.2.8",
     "ch.megard"              %% "akka-http-cors"         % "1.1.3",
     "io.spray"               %% "spray-json"             % "1.3.5",
-    "net.sourceforge.owlapi" %  "owlapi-distribution"    % "4.5.20" exclude("org.slf4j", "slf4j-log4j12"),
+    "net.sourceforge.owlapi" %  "owlapi-distribution"    % "5.1.20" exclude("org.slf4j", "slf4j-log4j12"),
     "org.semanticweb.elk"    %  "elk-owlapi"             % "0.4.3" exclude("log4j", "log4j"),
     "net.sourceforge.owlapi" %  "org.semanticweb.hermit" % "1.4.3.456",
     "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
