@@ -30,9 +30,9 @@ testFrameworks += new TestFramework("utest.runner.Framework")
 
 libraryDependencies ++= {
   Seq(
-    "com.typesafe.akka"      %% "akka-stream"            % "2.6.18",
-    "com.typesafe.akka"      %% "akka-actor"             % "2.6.18",
-    "com.typesafe.akka"      %% "akka-slf4j"             % "2.6.18",
+    "com.typesafe.akka"      %% "akka-stream"            % "2.6.19",
+    "com.typesafe.akka"      %% "akka-actor"             % "2.6.19",
+    "com.typesafe.akka"      %% "akka-slf4j"             % "2.6.19",
     "com.typesafe.akka"      %% "akka-http"              % "10.2.8",
     "com.typesafe.akka"      %% "akka-http-spray-json"   % "10.2.8",
     "ch.megard"              %% "akka-http-cors"         % "1.1.3",
