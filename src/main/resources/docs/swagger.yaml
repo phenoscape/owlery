@@ -27,6 +27,10 @@ paths:
           description: knowledgebase names
           content:
             application/json:
+              schema:
+                type: array
+                items:
+                  type: string
               examples:
                 response:
                   value:
@@ -52,6 +56,15 @@ paths:
           description: KB info
           content:
             application/json:
+              schema:
+                type: object
+                properties:
+                  isConsistent:
+                    type: boolean
+                  label:
+                    type: string
+                  logicalAxiomsCount:
+                    type: integer
               examples:
                 response:
                   value:
