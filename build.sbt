@@ -41,7 +41,7 @@ libraryDependencies ++= {
     "org.semanticweb.elk"    %  "elk-owlapi"             % "0.4.3" exclude("log4j", "log4j"),
     "net.sourceforge.owlapi" %  "org.semanticweb.hermit" % "1.4.3.456",
     "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
-    "org.geneontology"       %% "whelk-owlapi"           % "1.1.1",
+    "org.geneontology"       %% "whelk-owlapi"           % "1.1.2",
     "org.phenoscape"         %% "owlet"                  % "1.9" exclude("org.slf4j", "slf4j-log4j12"),
     "commons-io"             %  "commons-io"             % "2.11.0",
     "org.apache.jena"        %  "apache-jena-libs"       % "4.4.0" exclude("org.slf4j", "slf4j-log4j12"),
