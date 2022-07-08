@@ -47,7 +47,7 @@ libraryDependencies ++= {
     "org.apache.jena"        %  "apache-jena-libs"       % "4.4.0" exclude("org.slf4j", "slf4j-log4j12"),
     "org.obolibrary.robot"   %  "robot-core"             % "1.8.3" exclude("org.slf4j", "slf4j-log4j12"),
     "ch.qos.logback"         %  "logback-classic"        % "1.2.10",
-    "com.lihaoyi"            %% "utest"                  % "0.7.11" % Test
+    "com.lihaoyi"            %% "utest"                  % "0.8.0" % Test
   )
 }
 
