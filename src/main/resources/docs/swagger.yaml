@@ -27,6 +27,10 @@ paths:
           description: knowledgebase names
           content:
             application/json:
+              schema:
+                type: array
+                items:
+                  type: string
               examples:
                 response:
                   value:
@@ -52,12 +56,15 @@ paths:
           description: KB info
           content:
             application/json:
+              schema:
+                $ref: "#/components/schemas/kbInfo"
               examples:
                 response:
                   value:
                     label: uberon
                     isConsistent: true
                     logicalAxiomsCount: 43938
+
   "/kbs/{kb}/subclasses":
     get:
       tags:
@@ -90,13 +97,12 @@ paths:
               summary: an anonymous expression, using prefix definitions
         - name: prefixes
           in: query
-          description: JSON format prefix map, used to expand prefixes in the 'object'
+          description: >-
+            JSON format prefix map, used to expand prefixes in the 'object'
             expression
           required: false
           schema:
-            type: string
-            format: JSON
-            example: '{"obo": "http://purl.obolibrary.org/obo/", "part_of": "http://purl.obolibrary.org/obo/BFO_0000050"}'
+            $ref: '#/components/schemas/prefixMap'
         - name: direct
           in: query
           required: false
@@ -130,6 +136,27 @@ paths:
           description: subclasses
           content:
             application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    value:
+                      type: object
+                      properties:
+                        "@id":
+                          type: string
+                          format: uri
+                        superClassOf:
+                          type: array
+                          items:
+                            type: string
+                            format: uri
+                        value:
+                          type: string
+                      required:
+                        - "@id"
+                        - superClassOf
               examples:
                 named class:
                   value:
@@ -185,9 +212,7 @@ paths:
             expression
           required: false
           schema:
-            type: string
-            format: JSON
-            example: '{"obo": "http://purl.obolibrary.org/obo/", "part_of": "http://purl.obolibrary.org/obo/BFO_0000050"}'
+            $ref: '#/components/schemas/prefixMap'
         - name: direct
           in: query
           required: false
@@ -221,6 +246,22 @@ paths:
           description: superclasses
           content:
             application/json:
+              schema:
+                type: object
+                properties:
+                  '@id':
+                    type: string
+                    format: uri
+                  value:
+                    type: string
+                  subClassOf:
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                required:
+                  - "@id"
+                  - subClassOf
               examples:
                 named class:
                   value:
@@ -276,9 +317,7 @@ paths:
             expression
           required: false
           schema:
-            type: string
-            format: JSON
-            example: '{"obo": "http://purl.obolibrary.org/obo/", "part_of": "http://purl.obolibrary.org/obo/BFO_0000050"}'
+            $ref: '#/components/schemas/prefixMap'
         - name: direct
           in: query
           required: false
@@ -297,6 +336,27 @@ paths:
           description: equivalent classes
           content:
             application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                  properties:
+                    value:
+                      type: object
+                      properties:
+                        "@id":
+                          type: string
+                          format: uri
+                        equivalentClass:
+                          type: array
+                          items:
+                            type: string
+                            format: uri
+                        value:
+                          type: string
+                      required:
+                        - "@id"
+                        - equivalentClass
               examples:
                 named class:
                   value:
@@ -352,14 +412,25 @@ paths:
             expression
           required: false
           schema:
-            type: string
-            format: JSON
-            example: '{"obo": "http://purl.obolibrary.org/obo/", "part_of": "http://purl.obolibrary.org/obo/BFO_0000050"}'
+            $ref: '#/components/schemas/prefixMap'
       responses:
         '200':
           description: satisfiability
           content:
             application/json:
+              schema:
+                type: object
+                properties:
+                  "@id":
+                    type: string
+                    format: uri
+                  isSatisfiable:
+                    type: boolean
+                  value:
+                    type: string
+                required:
+                  - "@id"
+                  - isSatisfiable                        
               examples:
                 named class:
                   value:
@@ -396,8 +467,7 @@ paths:
           description: JSON format prefix map
           required: false
           schema:
-            type: string
-            format: JSON
+            $ref: '#/components/schemas/prefixMap'
         - name: direct
           in: query
           required: false
@@ -416,6 +486,17 @@ paths:
           description: instances
           content:
             application/json:
+              schema:
+                type: object
+                properties:
+                  "@id":
+                    type: string
+                    format: uri
+                  hasInstance:
+                    type: array
+                    items:
+                      type: string
+                      format: uri
               examples:
                 named class:
                   value:
@@ -448,8 +529,7 @@ paths:
           description: JSON format prefix map
           required: false
           schema:
-            type: string
-            format: JSON
+            $ref: '#/components/schemas/prefixMap'
         - name: direct
           in: query
           required: false
@@ -506,7 +586,9 @@ paths:
         '200':
           description: SPARQL results
           content:
-            application/sparql-results+xml: {}
+            application/sparql-results+xml:
+              schema:
+                type: string
     post:
       tags:
         - SPARQL
@@ -527,7 +609,7 @@ paths:
           application/sparql-query:
             schema:
               type: string
-              format: SPARQL query
+              # format: SPARQL query
               example: SELECT ?x WHERE { ?x a "blah"}
           application/x-www-form-urlencoded:
             schema:
@@ -535,12 +617,16 @@ paths:
               properties:
                 query:
                   type: string
-                  format: SPARQL query
+                  # format: SPARQL query
               required:
                 - query
       responses:
         '200':
-          description: SPARQL results
+          description: SPARQL results 
+          content:
+            application/json:
+              schema:
+                type: string
   "/kbs/{kb}/expand":
     get:
       tags:
@@ -565,7 +651,9 @@ paths:
         '200':
           description: Expanded SPARQL query
           content:
-            application/sparql-query: {}
+            application/sparql-query:
+              schema:
+                type: string
     post:
       tags:
         - SPARQL
@@ -599,5 +687,33 @@ paths:
       responses:
         '200':
           description: SPARQL results
+          content:
+            application/json:
+              schema:
+                type: string
 components:
-  schemas: {}
+  schemas:
+    prefixMap:
+      description: >
+        JSON format prefix map, used to expand prefixes in
+        the 'object' expression.  A JSON format prefix map is a JSON
+        object whose keys are prefixes without the colon separator
+        (e.g., \"owl\"), and whose values are IRI prefixes
+        (typically WITH the hash-mark, \"#\" suffix).  Because these
+        are passed as parameters, they may need to be URL-encoded to
+        pass over HTTP.
+      type: string
+      format: JSON
+      example: '{"obo": "http://purl.obolibrary.org/obo/", "part_of": "http://purl.obolibrary.org/obo/BFO_0000050"}'
+    kbInfo:
+      description: >-
+        Information provided about a specific KB.
+                      type: object
+      properties:
+        isConsistent:
+          type: boolean
+        label:
+          type: string
+        logicalAxiomsCount:
+          type: integer
+
