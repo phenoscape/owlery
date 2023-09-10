@@ -42,7 +42,7 @@ libraryDependencies ++= {
     "net.sourceforge.owlapi" %  "org.semanticweb.hermit" % "1.4.3.456",
     "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
     "org.geneontology"       %% "whelk-owlapi"           % "1.1.2",
-    "org.phenoscape"         %% "owlet"                  % "1.9" exclude("org.slf4j", "slf4j-log4j12"),
+    "org.phenoscape"         %% "owlet"                  % "2.0.0" exclude("org.slf4j", "slf4j-log4j12"),
     "commons-io"             %  "commons-io"             % "2.11.0",
     "org.apache.jena"        %  "apache-jena-libs"       % "4.6.1" exclude("org.slf4j", "slf4j-log4j12"),
     "org.obolibrary.robot"   %  "robot-core"             % "1.8.4" exclude("org.slf4j", "slf4j-log4j12"),
