@@ -43,7 +43,7 @@ libraryDependencies ++= {
     "net.sourceforge.owlapi" %  "jfact"                  % "4.0.4",
     "org.geneontology"       %% "whelk-owlapi"           % "1.1.2",
     "org.phenoscape"         %% "owlet"                  % "1.9" exclude("org.slf4j", "slf4j-log4j12"),
-    "commons-io"             %  "commons-io"             % "2.11.0",
+    "commons-io"             %  "commons-io"             % "2.15.0",
     "org.apache.jena"        %  "apache-jena-libs"       % "4.6.1" exclude("org.slf4j", "slf4j-log4j12"),
     "org.obolibrary.robot"   %  "robot-core"             % "1.8.4" exclude("org.slf4j", "slf4j-log4j12"),
     "ch.qos.logback"         %  "logback-classic"        % "1.2.10",
